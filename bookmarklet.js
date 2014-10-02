@@ -13,7 +13,8 @@ function scrape_cordelesp ( ) {
     
     // get some jQuery
     var target = frames[6],
-        scriptnode = document.createElement('script');
+        scriptnode = document.createElement('script'),
+        subwindow = document.createElement('iframe');
     scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
     target.document.querySelector('body').appendChild(scriptnode);
     scriptnode.addEventListener('load', function(){
@@ -23,5 +24,9 @@ function scrape_cordelesp ( ) {
         // #t9. While numbering continues on following pages, the ids of the
         // elements start from 1 again, so datum 101 on the second page will
         // be placed in <tr id="t1"/>.
+        var query_list = target.location.search.split('&');
+        query_list[0] = 'p=2';
+        target.jQuery(subwindow).attr('src', 'x3.asp?' + query_list.join('&'));
+        target.jQuery('body').append(subwindow);
     });
 }

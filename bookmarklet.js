@@ -27,6 +27,10 @@ function scrape_cordelesp ( ) {
         var query_list = target.location.search.split('&');
         query_list[0] = 'p=2';
         target.jQuery(subwindow).attr('src', 'x3.asp?' + query_list.join('&'));
+        target.jQuery(subwindow).attr('id', 'test');
         target.jQuery('body').append(subwindow);
+        subwindow.addEventListener('load', function(){
+            console.log(target.jQuery('#test #texto_9').val().split(/<b><u>|<\/u><\/b>/));
+        });
     });
 }

@@ -8,17 +8,12 @@
     http://www.corpusdelespanol.org/
 */
 
-// J.get(url, null, function (data) {
-//     var table = J('#zabba'), p = new DOMParser();
-//     doc = p.parseFromString(data, 'text/html');
-//     table.html(doc.querySelector('#zabba').innerHTML);
-// })
-
 (function ( ) {
     'use strict';
 
     var target = frames[6],
-        doc = target.document;
+        doc = target.document,
+        p = new DOMParser();
 
     function nestedarray2csv (arr) {
         var text = '';
@@ -40,9 +35,10 @@
     }
 
     function cordelesp_turnpage_then (continuation) {
-        doc.querySelectorAll('#zabba table')[1].querySelectorAll('a')[2].click();
-        target.addEventListener('load', function ( ) {
-            doc = target.document;
+        window.jQuery.get(doc.querySelectorAll('#zabba table')[1].querySelectorAll('a')[2].href, function (data) {
+            var result = p.parseFromString(data, 'text/html'),
+                table = doc.querySelector('#zabba');
+            table.innerHTML = result.querySelector('#zabba').innerHTML;
             continuation();
         });
     }

@@ -13,18 +13,20 @@
 
     var target = frames[6],
         doc = target.document,
-        p = new DOMParser();
+        p = new DOMParser(),
+        data = [];
 
-    function nestedarray2csv (arr) {
+    function data2csv ( ) {
+        console.log(data);
         var text = '';
-        for (var l = arr.length, i = 0; i < l; ++i) {
-            var a = arr[i];
+        for (var l = data.length, i = 0; i < l; ++i) {
+            var a = data[i];
             for (var m = a.length, j = 0; j < m; ++j) {
                 text += a[j] + ';';
             }
             text += '\n';
         }
-        return text;
+        document.write(text);
     }
 
     function insert_jquery_then (continuation) {
@@ -34,32 +36,38 @@
         scriptnode.addEventListener('load', continuation);
     }
 
-    function cordelesp_turnpage_then (continuation) {
-        window.jQuery.get(doc.querySelectorAll('#zabba table')[1].querySelectorAll('a')[2].href, function (data) {
-            var result = p.parseFromString(data, 'text/html'),
-                table = doc.querySelector('#zabba');
-            table.innerHTML = result.querySelector('#zabba').innerHTML;
-            continuation();
-        });
+    function cordelesp_turnpage_then (continuation, alternative) {
+        var navtable = doc.querySelectorAll('#zabba table')[1],
+            navrow = navtable.querySelectorAll('td')[2],
+            anchor = navrow.querySelectorAll('a')[2],
+            progress = navrow.childNodes[4].nodeValue.split('/'),
+            table = doc.querySelector('#zabba');
+        if (Number(progress[0]) < Number(progress[1])) {
+            window.jQuery.get(anchor.href, function (data) {
+                var result = p.parseFromString(data, 'text/html');
+                table.innerHTML = result.querySelector('#zabba').innerHTML;
+                continuation();
+            });
+        } else {
+            alternative();
+        }
     }
 
     function cordelesp_scrape1page ( ) {
-        var data = [];
         for (var i = 1; i <= 100; ++i) {
             var field = doc.querySelector('#texto_' + i);
-            if (! field) break;
+            if (!field || !field.value) continue;
             data.push(field.value.split(/<b><u>|<\/u><\/b>/));
         }
-        return data;
     }
 
     function scrape_cordelesp ( ) {
-        var data = cordelesp_scrape1page();
         cordelesp_turnpage_then(function ( ) {
             data = data.concat(cordelesp_scrape1page());
-            console.log(nestedarray2csv(data));
-        });
+            scrape_cordelesp();
+        }, data2csv);
     }
 
+    cordelesp_scrape1page();
     insert_jquery_then(scrape_cordelesp);
 })();

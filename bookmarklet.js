@@ -8,29 +8,62 @@
     http://www.corpusdelespanol.org/
 */
 
-function scrape_cordelesp ( ) {
+// J.get(url, null, function (data) {
+//     var table = J('#zabba'), p = new DOMParser();
+//     doc = p.parseFromString(data, 'text/html');
+//     table.html(doc.querySelector('#zabba').innerHTML);
+// })
+
+(function ( ) {
     'use strict';
-    
-    // get some jQuery
+
     var target = frames[6],
-        scriptnode = document.createElement('script'),
-        subwindow = document.createElement('iframe');
-    scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
-    target.document.querySelector('body').appendChild(scriptnode);
-    scriptnode.addEventListener('load', function(){
-        // get the contents of the 9th line
-        console.log(target.jQuery('#texto_9').val().split(/<b><u>|<\/u><\/b>/));
-        // Companion data are stored in the <tr> with the same number, i.e.
-        // #t9. While numbering continues on following pages, the ids of the
-        // elements start from 1 again, so datum 101 on the second page will
-        // be placed in <tr id="t1"/>.
-        var query_list = target.location.search.split('&');
-        query_list[0] = 'p=2';
-        target.jQuery(subwindow).attr('src', 'x3.asp?' + query_list.join('&'));
-        target.jQuery(subwindow).attr('id', 'test');
-        target.jQuery('body').append(subwindow);
-        subwindow.addEventListener('load', function(){
-            console.log(target.jQuery('#test #texto_9').val().split(/<b><u>|<\/u><\/b>/));
+        doc = target.document;
+
+    function nestedarray2csv (arr) {
+        var text = '';
+        for (var l = arr.length, i = 0; i < l; ++i) {
+            var a = arr[i];
+            for (var m = a.length, j = 0; j < m; ++j) {
+                text += a[j] + ';';
+            }
+            text += '\n';
+        }
+        return text;
+    }
+
+    function insert_jquery_then (continuation) {
+        var scriptnode = document.createElement('script');
+        scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
+        document.head.appendChild(scriptnode);
+        scriptnode.addEventListener('load', continuation);
+    }
+
+    function cordelesp_turnpage_then (continuation) {
+        doc.querySelectorAll('#zabba table')[1].querySelectorAll('a')[2].click();
+        target.addEventListener('load', function ( ) {
+            doc = target.document;
+            continuation();
         });
-    });
-}
+    }
+
+    function cordelesp_scrape1page ( ) {
+        var data = [];
+        for (var i = 1; i <= 100; ++i) {
+            var field = doc.querySelector('#texto_' + i);
+            if (! field) break;
+            data.push(field.value.split(/<b><u>|<\/u><\/b>/));
+        }
+        return data;
+    }
+
+    function scrape_cordelesp ( ) {
+        var data = cordelesp_scrape1page();
+        cordelesp_turnpage_then(function ( ) {
+            data = data.concat(cordelesp_scrape1page());
+            console.log(nestedarray2csv(data));
+        });
+    }
+
+    insert_jquery_then(scrape_cordelesp);
+})();

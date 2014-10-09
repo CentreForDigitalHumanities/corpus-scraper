@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>CorpusScraper &mdash; Digital Humanities Lab &mdash; Utrecht University</title>
+
+<style type="text/css">
+    body {
+        max-width: 80ex;
+    }
+    
+    #bookmarklet {
+        display: inline-block;
+        clear: both;
+        margin: 1em 0;
+        border: 2px dashed black;
+        border-radius: 8px;
+        padding: 1em;
+        background-color: #ddd;
+        font-style: italic;
+        color: #a02;
+        text-decoration: none;
+        cursor: move;
+    }
+    
+    #bookmarklet:active {
+        cursor: grabbing;
+    }
+</style>
+
+</head><body>
+
+<h1>CorpusScraper</h1>
+
+<p>Welcome. CorpusScraper is a bookmarklet that extracts data from an online text corpus and lets you save the data to a CSV file in just a few clicks.</p>
+
+<p><em>Note</em> Please be advised that currently only <a href="">Corpus del Español</a> is supported.</p>
+
+<h2>Installation</h2>
+
+<p>
+    Drag the box below to your bookmarks bar.<br>
+    <a id="bookmarklet" title="Drag me" href="javascript:(function(){'use strict';var g=frames[6],doc=g.document,p=new DOMParser(),data=[];function insert_jquery_then(a){var b=document.createElement('script');b.setAttribute('src','//code.jquery.com/jquery-2.1.1.min.js');document.head.appendChild(b);b.addEventListener('load',a)}function cordelesp_turnpage_then(c,d){var e=doc.querySelectorAll('#zabba table')[1];if(!e){d();return}var f=e.querySelectorAll('td')[2],anchor=f.querySelectorAll('a')[2],progress=f.childNodes[4].nodeValue.split('/'),table=doc.querySelector('#zabba');if(Number(progress[0])<Number(progress[1])){window.jQuery.get(anchor.href,function(a){var b=p.parseFromString(a,'text/html');table.innerHTML=b.querySelector('#zabba').innerHTML;c()})}else{d()}}function cordelesp_scrape1page(){for(var i=1;i<=100;++i){var a=doc.querySelector('#t'+i);if(!a)continue;var b=a.querySelectorAll('a'),field=a.querySelector('#texto_'+i),rowdata=[];if(!b||!field||!field.value)continue;for(var j=0;j<3;++j){rowdata.push(b[j].childNodes[0].nodeValue.trim())}data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)))}}function scrape_cordelesp(){cordelesp_turnpage_then(function(){data=data.concat(cordelesp_scrape1page());scrape_cordelesp()},data2csv)}function data2csv(){console.log(data);data=data.filter(function(a){return a});var b='';for(var l=data.length,i=0;i<l;++i){var a=data[i],m=a.length;for(var j=0;j<2&&j<m;++j){b+=a[j]+';'}for(var j=2;j<m;++j){b+='%22'+a[j]+'%22;'}b+='\n'}document.write('Scraping complete. Please copy the contents below '+'into a plaintext document and give it a .csv extension.<br>'+'<textarea id=%22output%22 style=%22width: 50ex; height: 10em;%22>'+'number;century;text;contextLeft;sample;contextRight;\n'+b+'</textarea>');$('#output').focus().select()}cordelesp_scrape1page();insert_jquery_then(scrape_cordelesp)})();">
+        ScrapeCorpus
+    </a><br>
+    <em>Note</em> The bookmarklet requires JavaScript in order to work.
+</p>
+
+<h2>Usage</h2>
+
+<p>Enter a word-in-context query and load the first page of search results. When the page has completely loaded, click on the bookmarklet in your bookmarks bar. The extraction process starts immediately, although you might not see it at first. After a while (about two seconds per page), the page turns white and a text box appears from which you can copy the CSV code (the text has already been selected for you). Paste the text into an empty plain text file (with e.g. Notepad, TextEdit or gedit) and save it with a .csv extension. The resulting file can be opened with Excel or SPSS. It uses semicolons to separate the values and double quotes to mark text values.</p>
+
+<footer>
+    &copy; 2014 Digital Humanities Lab, Faculty of Humanities, Utrecht University<br>
+    Author: Julian Gonggrijp, j.gonggrijp@uu.nl
+</footer>
+
+</body>
+</html>

@@ -44,8 +44,12 @@
     }
 
     function cordelesp_turnpage_then (continuation, alternative) {
-        var navtable = doc.querySelectorAll('#zabba table')[1],
-            navrow = navtable.querySelectorAll('td')[2],
+        var navtable = doc.querySelectorAll('#zabba table')[1];
+        if (! navtable) {
+            alternative();
+            return;
+        }
+        var navrow = navtable.querySelectorAll('td')[2],
             anchor = navrow.querySelectorAll('a')[2],
             progress = navrow.childNodes[4].nodeValue.split('/'),
             table = doc.querySelector('#zabba');

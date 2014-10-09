@@ -73,9 +73,13 @@
         data = data.filter(function (elem) { return elem; });
         var text = '';
         for (var l = data.length, i = 0; i < l; ++i) {
-            var a = data[i];
-            for (var m = a.length, j = 0; j < m; ++j) {
+            var a = data[i],
+                m = a.length;
+            for (var j = 0; j < 2 && j < m; ++j) {
                 text += a[j] + ';';
+            }
+            for (var j = 2; j < m; ++j) {
+                text += '"' + a[j] + '";';
             }
             text += '\n';
         }
@@ -83,6 +87,7 @@
             'Scraping complete. Please copy the contents below ' +
             'into a plaintext document and give it a .csv extension.<br>' +
             '<textarea id="output" style="width: 50ex; height: 10em;">' +
+            'number;century;text;contextLeft;sample;contextRight;\n' +
             text +
             '</textarea>'
         );

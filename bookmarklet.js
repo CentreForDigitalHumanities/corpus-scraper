@@ -46,9 +46,16 @@
 
     function cordelesp_scrape1page ( ) {
         for (var i = 1; i <= 100; ++i) {
-            var field = doc.querySelector('#texto_' + i);
-            if (!field || !field.value) continue;
-            data.push(field.value.split(/<b><u>|<\/u><\/b>/));
+            var row = doc.querySelector('#t' + i);
+            if (! row) continue;
+            var anchors = row.querySelectorAll('a'),
+                field = row.querySelector('#texto_' + i),
+                rowdata = [];
+            if (!anchors || !field || !field.value) continue;
+            for (var j = 0; j < 3; ++j) {
+                rowdata.push(anchors[j].childNodes[0].nodeValue.trim());
+            }
+            data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
         }
     }
 

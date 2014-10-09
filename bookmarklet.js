@@ -16,26 +16,6 @@
         p = new DOMParser(),
         data = [];
 
-    function data2csv ( ) {
-        console.log(data);
-        var text = '';
-        for (var l = data.length, i = 0; i < l; ++i) {
-            var a = data[i];
-            for (var m = a.length, j = 0; j < m; ++j) {
-                text += a[j] + ';';
-            }
-            text += '\n';
-        }
-        document.write(
-            'Scraping complete. Please copy the contents below ' +
-            'into a plaintext document and give it a .csv extension.<br>' +
-            '<textarea id="output" style="width: 50ex; height: 10em;">' +
-            text +
-            '</textarea>'
-        );
-        $('#output').focus().select();
-    }
-
     function insert_jquery_then (continuation) {
         var scriptnode = document.createElement('script');
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
@@ -60,9 +40,6 @@
                 continuation();
             });
         } else {
-            // step below removes mysterious undefined elements that
-            // creep into the array
-            data = data.filter(function (elem) { return elem; });
             alternative();
         }
     }
@@ -80,6 +57,29 @@
             data = data.concat(cordelesp_scrape1page());
             scrape_cordelesp();
         }, data2csv);
+    }
+
+    function data2csv ( ) {
+        console.log(data);
+        // step below removes mysterious undefined elements that
+        // creep into the array
+        data = data.filter(function (elem) { return elem; });
+        var text = '';
+        for (var l = data.length, i = 0; i < l; ++i) {
+            var a = data[i];
+            for (var m = a.length, j = 0; j < m; ++j) {
+                text += a[j] + ';';
+            }
+            text += '\n';
+        }
+        document.write(
+            'Scraping complete. Please copy the contents below ' +
+            'into a plaintext document and give it a .csv extension.<br>' +
+            '<textarea id="output" style="width: 50ex; height: 10em;">' +
+            text +
+            '</textarea>'
+        );
+        $('#output').focus().select();
     }
 
     cordelesp_scrape1page();

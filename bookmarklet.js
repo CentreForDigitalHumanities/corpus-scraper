@@ -49,6 +49,9 @@
                 continuation();
             });
         } else {
+            // step below removes mysterious undefined elements that
+            // creep into the array
+            data = data.filter(function (elem) { return elem; });
             alternative();
         }
     }

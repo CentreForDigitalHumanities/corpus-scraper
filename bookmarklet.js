@@ -75,11 +75,13 @@
         for (var l = data.length, i = 0; i < l; ++i) {
             var a = data[i],
                 m = a.length;
-            for (var j = 0; j < 2 && j < m; ++j) {
-                text += a[j] + ';';
+            if (m != 6) {
+                console.log('Error: subarray of incorrect length.\n', a);
+                continue;
             }
+            text += a[0] + ';' + a[1];
             for (var j = 2; j < m; ++j) {
-                text += '"' + a[j] + '";';
+                text += ';"' + a[j] + '"';
             }
             text += '\n';
         }
@@ -87,7 +89,7 @@
             'Scraping complete. Please copy the contents below ' +
             'into a plaintext document and give it a .csv extension.<br>' +
             '<textarea id="output" style="width: 50ex; height: 10em;">' +
-            'number;century;text;contextLeft;sample;contextRight;\n' +
+            'number;century;text;contextLeft;sample;contextRight\n' +
             text +
             '</textarea>'
         );

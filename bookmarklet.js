@@ -26,7 +26,14 @@
             }
             text += '\n';
         }
-        document.write(text);
+        document.write(
+            'Scraping complete. Please copy the contents below ' +
+            'into a plaintext document and give it a .csv extension.<br>' +
+            '<textarea id="output" style="width: 50ex; height: 10em;">' +
+            text +
+            '</textarea>'
+        );
+        $('#output').focus().select();
     }
 
     function insert_jquery_then (continuation) {

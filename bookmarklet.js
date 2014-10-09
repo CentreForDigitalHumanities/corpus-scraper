@@ -14,8 +14,26 @@
     var target = frames[6],
         doc = target.document,
         p = new DOMParser(),
-        data = [];
-
+        data = [],
+        progress_steps = 10
+        progress = 0;
+    
+    function create_statusbar ( ) {
+        var statuswidget = document.createElement('div');
+        statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
+        statuswidget.innerHTML = (
+            '<div style="width: 100px; height: 10px; border: 2px solid black;">'
+            + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
+            + '</div>'
+        );
+        doc.body.appendChild(statuswidget);
+    }
+    
+    function update_statusbar ( ) {
+        var percentage = ++progress / progress_steps * 100;
+        doc.querySelector('#progress-fill').style.width = percentage + '%';
+    }
+    
     function insert_jquery_then (continuation) {
         var scriptnode = document.createElement('script');
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');

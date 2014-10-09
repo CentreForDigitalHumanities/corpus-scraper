@@ -13,19 +13,8 @@
 
     var target = frames[6],
         doc = target.document,
-        p = new DOMParser();
-
-    function nestedarray2csv (arr) {
-        var text = '';
-        for (var l = arr.length, i = 0; i < l; ++i) {
-            var a = arr[i];
-            for (var m = a.length, j = 0; j < m; ++j) {
-                text += a[j] + ';';
-            }
-            text += '\n';
-        }
-        return text;
-    }
+        p = new DOMParser(),
+        data = [];
 
     function insert_jquery_then (continuation) {
         var scriptnode = document.createElement('script');
@@ -34,32 +23,77 @@
         scriptnode.addEventListener('load', continuation);
     }
 
-    function cordelesp_turnpage_then (continuation) {
-        window.jQuery.get(doc.querySelectorAll('#zabba table')[1].querySelectorAll('a')[2].href, function (data) {
-            var result = p.parseFromString(data, 'text/html'),
-                table = doc.querySelector('#zabba');
-            table.innerHTML = result.querySelector('#zabba').innerHTML;
-            continuation();
-        });
+    function cordelesp_turnpage_then (continuation, alternative) {
+        var navtable = doc.querySelectorAll('#zabba table')[1];
+        if (! navtable) {
+            alternative();
+            return;
+        }
+        var navrow = navtable.querySelectorAll('td')[2],
+            anchor = navrow.querySelectorAll('a')[2],
+            progress = navrow.childNodes[4].nodeValue.split('/'),
+            table = doc.querySelector('#zabba');
+        if (Number(progress[0]) < Number(progress[1])) {
+            window.jQuery.get(anchor.href, function (data) {
+                var result = p.parseFromString(data, 'text/html');
+                table.innerHTML = result.querySelector('#zabba').innerHTML;
+                continuation();
+            });
+        } else {
+            alternative();
+        }
     }
 
     function cordelesp_scrape1page ( ) {
-        var data = [];
         for (var i = 1; i <= 100; ++i) {
-            var field = doc.querySelector('#texto_' + i);
-            if (! field) break;
-            data.push(field.value.split(/<b><u>|<\/u><\/b>/));
+            var row = doc.querySelector('#t' + i);
+            if (! row) continue;
+            var anchors = row.querySelectorAll('a'),
+                field = row.querySelector('#texto_' + i),
+                rowdata = [];
+            if (!anchors || !field || !field.value) continue;
+            for (var j = 0; j < 3; ++j) {
+                rowdata.push(anchors[j].childNodes[0].nodeValue.trim());
+            }
+            data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
         }
-        return data;
     }
 
     function scrape_cordelesp ( ) {
-        var data = cordelesp_scrape1page();
         cordelesp_turnpage_then(function ( ) {
             data = data.concat(cordelesp_scrape1page());
-            console.log(nestedarray2csv(data));
-        });
+            scrape_cordelesp();
+        }, data2csv);
     }
 
+    function data2csv ( ) {
+        console.log(data);
+        // step below removes mysterious undefined elements that
+        // creep into the array
+        data = data.filter(function (elem) { return elem; });
+        var text = '';
+        for (var l = data.length, i = 0; i < l; ++i) {
+            var a = data[i],
+                m = a.length;
+            for (var j = 0; j < 2 && j < m; ++j) {
+                text += a[j] + ';';
+            }
+            for (var j = 2; j < m; ++j) {
+                text += '"' + a[j] + '";';
+            }
+            text += '\n';
+        }
+        document.write(
+            'Scraping complete. Please copy the contents below ' +
+            'into a plaintext document and give it a .csv extension.<br>' +
+            '<textarea id="output" style="width: 50ex; height: 10em;">' +
+            'number;century;text;contextLeft;sample;contextRight;\n' +
+            text +
+            '</textarea>'
+        );
+        $('#output').focus().select();
+    }
+
+    cordelesp_scrape1page();
     insert_jquery_then(scrape_cordelesp);
 })();

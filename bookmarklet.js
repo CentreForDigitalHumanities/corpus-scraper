@@ -14,7 +14,7 @@
     var target = frames[6],
         p = new DOMParser(),
         data = [],
-        progress_steps = 10,
+        progress_steps,
         progress = 0;
     
     function create_statusbar ( ) {
@@ -25,12 +25,12 @@
             + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
             + '</div>'
         );
-        doc.body.appendChild(statuswidget);
+        target.document.body.appendChild(statuswidget);
     }
     
     function update_statusbar ( ) {
         var percentage = ++progress / progress_steps * 100;
-        doc.querySelector('#progress-fill').style.width = percentage + '%';
+        target.document.querySelector('#progress-fill').style.width = percentage + '%';
     }
     
     function insert_jquery_then (continuation) {
@@ -39,6 +39,13 @@
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
     }
+	
+	function cordelesp_count_pages ( ) {
+        var navtable = target.document.querySelectorAll('#zabba table')[1],
+            navrow = navtable.querySelectorAll('td')[2],
+            anchor = navrow.querySelectorAll('a')[2];
+        progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+	}
 
     function cordelesp_turnpage_then (doc, continuation, alternative) {
         var navtable = doc.querySelectorAll('#zabba table')[1];
@@ -73,6 +80,7 @@
             }
             data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
         }
+		update_statusbar();
     }
 
     function scrape_cordelesp (doc) {
@@ -111,7 +119,12 @@
         );
         $('#output').focus().select();
     }
-
+	
+	cordelesp_count_pages();
+	create_statusbar();
     cordelesp_scrape1page(target.document);
-    insert_jquery_then(function ( ) { scrape_cordelesp(target.document); });
+    insert_jquery_then(function ( ) {
+		update_statusbar();
+		scrape_cordelesp(target.document);
+	});
 })();

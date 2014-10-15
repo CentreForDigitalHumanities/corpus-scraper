@@ -67,9 +67,9 @@
                     progress_steps = Number(navnode.innerText.split(/[^0,1-9]+/)[2]) + 1;
                 },
                 turnpage_then: function (doc, continuation, alternative) {
-                    var anchor = $('td > a')[0],
-                        navnode = $('td.texto[align="center"]')[0],
                         progress = navnode.innerText.split(/[^0,1-9]+/);
+                    var anchor = window.jQuery('td > a')[0],
+                        navnode = window.jQuery('td.texto[align="center"]')[0],
                     if (! anchor || anchor.innerText != 'Siguiente') {
                         alternative();
                         return;

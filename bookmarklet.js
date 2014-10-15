@@ -62,46 +62,33 @@
             },
             'corpus.rae.es': {
                 init: function ( ) {
-                    // $('td.texto[align="center"]')[0].innerText.split(/[^0,1-9]+/)
                     target = window;
-                    var navtable = target.document.querySelectorAll('#zabba table')[1],
-                        navrow = navtable.querySelectorAll('td')[2],
-                        anchor = navrow.querySelectorAll('a')[2];
-                    progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                    var navnode = document.querySelector('td.texto[align="center"]');
+                    progress_steps = Number(navnode.innerText.split(/[^0,1-9]+/)[2]) + 1;
                 },
                 turnpage_then: function (doc, continuation, alternative) {
-                    // $('td > a')[0].href
-                    var navtable = doc.querySelectorAll('#zabba table')[1];
-                    if (! navtable) {
+                    var anchor = $('td > a')[0],
+                        navnode = $('td.texto[align="center"]')[0],
+                        progress = navnode.innerText.split(/[^0,1-9]+/);
+                    if (! anchor || anchor.innerText != 'Siguiente') {
                         alternative();
                         return;
                     }
-                    var navrow = navtable.querySelectorAll('td')[2],
-                        anchor = navrow.querySelectorAll('a')[2],
-                        progress = navrow.childNodes[4].nodeValue.split('/'),
-                        table = doc.querySelector('#zabba');
-                    if (Number(progress[0]) < Number(progress[1])) {
-                        window.jQuery.get(anchor.href, function (data) {
-                            var next_doc = p.parseFromString(data, 'text/html');
-                            continuation(next_doc);
-                        });
-                    } else {
-                        alternative();
-                    }
+                    window.jQuery.get(anchor.href, function (data) {
+                        var next_doc = p.parseFromString(data, 'text/html');
+                        continuation(next_doc);
+                    });
                 },
                 scrape1page: function (doc) {
-                    // $('tt').html().split('\n')[1].split(/\**\s{2,}|<a.+?>|<\/a>/)
-                    for (var i = 1; i <= 100; ++i) {
-                        var row = doc.querySelector('#t' + i);
-                        if (! row) continue;
-                        var anchors = row.querySelectorAll('a'),
-                            field = row.querySelector('#texto_' + i),
+                    var lines = document.querySelector('tt').innerHTML.split('\n');
+                    for (var l = lines.length, i = 1; i < l; ++i) {
+                        var pieces = lines[i].split(/\**\s{2,}|<a.+?>|<\/a>/);
+                        if (pieces.length < 10) continue;
+                        var century = Number(pieces[4].match(/\d\d/)) + 1,
                             rowdata = [];
-                        if (!anchors || !field || !field.value) continue;
-                        for (var j = 0; j < 3; ++j) {
-                            rowdata.push(anchors[j].childNodes[0].nodeValue);
-                        }
-                        data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
+                        rowdata.push(pieces[0], century, pieces[6]);
+                        for (var j = 1; j <= 3; ++j) rowdata.push(pieces[j]);
+                        data.push(rowdata);
                     }
                     update_statusbar();
                 }
@@ -170,8 +157,8 @@
         $('#output').focus().select();
     }
 	
-	domain.init();
-	create_statusbar();
+    domain.init();
+    create_statusbar();
     domain.scrape1page(target.document);
     insert_jquery_then(function ( ) {
 		update_statusbar();

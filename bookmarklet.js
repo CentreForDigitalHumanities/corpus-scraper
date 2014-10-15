@@ -88,8 +88,8 @@
     }
 
     function scrape (doc) {
-        domain.scrape1page(doc);
         domain.turnpage_then(doc, function (next_doc) {
+            domain.scrape1page(next_doc);
             scrape(next_doc);
         }, data2csv);
     }
@@ -126,6 +126,7 @@
 	
 	domain.init();
 	create_statusbar();
+    domain.scrape1page(target.document);
     insert_jquery_then(function ( ) {
 		update_statusbar();
 		scrape(target.document);

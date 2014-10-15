@@ -59,6 +59,52 @@
                     }
                     update_statusbar();
                 }
+            },
+            'corpus.rae.es': {
+                init: function ( ) {
+                    // $('td.texto[align="center"]')[0].innerText.split(/[^0,1-9]+/)
+                    target = window;
+                    var navtable = target.document.querySelectorAll('#zabba table')[1],
+                        navrow = navtable.querySelectorAll('td')[2],
+                        anchor = navrow.querySelectorAll('a')[2];
+                    progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                },
+                turnpage_then: function (doc, continuation, alternative) {
+                    // $('td > a')[0].href
+                    var navtable = doc.querySelectorAll('#zabba table')[1];
+                    if (! navtable) {
+                        alternative();
+                        return;
+                    }
+                    var navrow = navtable.querySelectorAll('td')[2],
+                        anchor = navrow.querySelectorAll('a')[2],
+                        progress = navrow.childNodes[4].nodeValue.split('/'),
+                        table = doc.querySelector('#zabba');
+                    if (Number(progress[0]) < Number(progress[1])) {
+                        window.jQuery.get(anchor.href, function (data) {
+                            var next_doc = p.parseFromString(data, 'text/html');
+                            continuation(next_doc);
+                        });
+                    } else {
+                        alternative();
+                    }
+                },
+                scrape1page: function (doc) {
+                    // $('tt').html().split('\n')[1].split(/\**\s{2,}|<a.+?>|<\/a>/)
+                    for (var i = 1; i <= 100; ++i) {
+                        var row = doc.querySelector('#t' + i);
+                        if (! row) continue;
+                        var anchors = row.querySelectorAll('a'),
+                            field = row.querySelector('#texto_' + i),
+                            rowdata = [];
+                        if (!anchors || !field || !field.value) continue;
+                        for (var j = 0; j < 3; ++j) {
+                            rowdata.push(anchors[j].childNodes[0].nodeValue);
+                        }
+                        data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
+                    }
+                    update_statusbar();
+                }
             }
         }[window.location.hostname];
     

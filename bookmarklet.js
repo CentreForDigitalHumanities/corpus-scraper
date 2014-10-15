@@ -53,7 +53,7 @@
                             rowdata = [];
                         if (!anchors || !field || !field.value) continue;
                         for (var j = 0; j < 3; ++j) {
-                            rowdata.push(anchors[j].childNodes[0].nodeValue.trim());
+                            rowdata.push(anchors[j].childNodes[0].nodeValue);
                         }
                         data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
                     }
@@ -107,9 +107,9 @@
                 console.log('Error: subarray of incorrect length.\n', a);
                 continue;
             }
-            text += a[0] + ';' + a[1];
+            text += a[0].trim() + ';' + a[1].trim();
             for (var j = 2; j < m; ++j) {
-                text += ';"' + a[j] + '"';
+                text += ';"' + a[j].trim() + '"';
             }
             text += '\n';
         }

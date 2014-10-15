@@ -12,7 +12,6 @@
     'use strict';
 
     var target = frames[6],
-        doc = target.document,
         p = new DOMParser(),
         data = [],
         progress_steps = 10
@@ -41,7 +40,7 @@
         scriptnode.addEventListener('load', continuation);
     }
 
-    function cordelesp_turnpage_then (continuation, alternative) {
+    function cordelesp_turnpage_then (doc, continuation, alternative) {
         var navtable = doc.querySelectorAll('#zabba table')[1];
         if (! navtable) {
             alternative();
@@ -53,16 +52,15 @@
             table = doc.querySelector('#zabba');
         if (Number(progress[0]) < Number(progress[1])) {
             window.jQuery.get(anchor.href, function (data) {
-                var result = p.parseFromString(data, 'text/html');
-                table.innerHTML = result.querySelector('#zabba').innerHTML;
-                continuation();
+                var next_doc = p.parseFromString(data, 'text/html');
+                continuation(next_doc);
             });
         } else {
             alternative();
         }
     }
 
-    function cordelesp_scrape1page ( ) {
+    function cordelesp_scrape1page (doc) {
         for (var i = 1; i <= 100; ++i) {
             var row = doc.querySelector('#t' + i);
             if (! row) continue;
@@ -77,10 +75,10 @@
         }
     }
 
-    function scrape_cordelesp ( ) {
-        cordelesp_turnpage_then(function ( ) {
-            data = data.concat(cordelesp_scrape1page());
-            scrape_cordelesp();
+    function scrape_cordelesp (doc) {
+        cordelesp_turnpage_then(doc, function (next_doc) {
+            cordelesp_scrape1page(next_doc);
+            scrape_cordelesp(next_doc);
         }, data2csv);
     }
 
@@ -114,6 +112,6 @@
         $('#output').focus().select();
     }
 
-    cordelesp_scrape1page();
-    insert_jquery_then(scrape_cordelesp);
+    cordelesp_scrape1page(target.document);
+    insert_jquery_then(function ( ) { scrape_cordelesp(target.document); });
 })();

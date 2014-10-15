@@ -14,7 +14,7 @@
     var target = frames[6],
         p = new DOMParser(),
         data = [],
-        progress_steps = 10
+        progress_steps = 10,
         progress = 0;
     
     function create_statusbar ( ) {

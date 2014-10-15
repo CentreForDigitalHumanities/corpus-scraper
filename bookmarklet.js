@@ -10,13 +10,60 @@
 
 (function ( ) {
     'use strict';
-
-    var target = frames[6],
+    
+    var target,
         p = new DOMParser(),
         data = [],
         progress_steps,
-        progress = 0;
+        progress = 0,
+        domain = {
+            'www.corpusdelespanol.org': {
+                init: function ( ) {
+                    target = frames[6];
+                    var navtable = target.document.querySelectorAll('#zabba table')[1],
+                        navrow = navtable.querySelectorAll('td')[2],
+                        anchor = navrow.querySelectorAll('a')[2];
+                    progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                },
+                turnpage_then: function (doc, continuation, alternative) {
+                    var navtable = doc.querySelectorAll('#zabba table')[1];
+                    if (! navtable) {
+                        alternative();
+                        return;
+                    }
+                    var navrow = navtable.querySelectorAll('td')[2],
+                        anchor = navrow.querySelectorAll('a')[2],
+                        progress = navrow.childNodes[4].nodeValue.split('/'),
+                        table = doc.querySelector('#zabba');
+                    if (Number(progress[0]) < Number(progress[1])) {
+                        window.jQuery.get(anchor.href, function (data) {
+                            var next_doc = p.parseFromString(data, 'text/html');
+                            continuation(next_doc);
+                        });
+                    } else {
+                        alternative();
+                    }
+                },
+                scrape1page: function (doc) {
+                    for (var i = 1; i <= 100; ++i) {
+                        var row = doc.querySelector('#t' + i);
+                        if (! row) continue;
+                        var anchors = row.querySelectorAll('a'),
+                            field = row.querySelector('#texto_' + i),
+                            rowdata = [];
+                        if (!anchors || !field || !field.value) continue;
+                        for (var j = 0; j < 3; ++j) {
+                            rowdata.push(anchors[j].childNodes[0].nodeValue.trim());
+                        }
+                        data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
+                    }
+                    update_statusbar();
+                }
+            }
+        }[window.location.hostname];
     
+    if (! domain) return;
+
     function create_statusbar ( ) {
         var statuswidget = document.createElement('div');
         statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
@@ -39,54 +86,11 @@
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
     }
-	
-	function cordelesp_count_pages ( ) {
-        var navtable = target.document.querySelectorAll('#zabba table')[1],
-            navrow = navtable.querySelectorAll('td')[2],
-            anchor = navrow.querySelectorAll('a')[2];
-        progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
-	}
 
-    function cordelesp_turnpage_then (doc, continuation, alternative) {
-        var navtable = doc.querySelectorAll('#zabba table')[1];
-        if (! navtable) {
-            alternative();
-            return;
-        }
-        var navrow = navtable.querySelectorAll('td')[2],
-            anchor = navrow.querySelectorAll('a')[2],
-            progress = navrow.childNodes[4].nodeValue.split('/'),
-            table = doc.querySelector('#zabba');
-        if (Number(progress[0]) < Number(progress[1])) {
-            window.jQuery.get(anchor.href, function (data) {
-                var next_doc = p.parseFromString(data, 'text/html');
-                continuation(next_doc);
-            });
-        } else {
-            alternative();
-        }
-    }
-
-    function cordelesp_scrape1page (doc) {
-        for (var i = 1; i <= 100; ++i) {
-            var row = doc.querySelector('#t' + i);
-            if (! row) continue;
-            var anchors = row.querySelectorAll('a'),
-                field = row.querySelector('#texto_' + i),
-                rowdata = [];
-            if (!anchors || !field || !field.value) continue;
-            for (var j = 0; j < 3; ++j) {
-                rowdata.push(anchors[j].childNodes[0].nodeValue.trim());
-            }
-            data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
-        }
-		update_statusbar();
-    }
-
-    function scrape_cordelesp (doc) {
-        cordelesp_turnpage_then(doc, function (next_doc) {
-            cordelesp_scrape1page(next_doc);
-            scrape_cordelesp(next_doc);
+    function scrape (doc) {
+        domain.turnpage_then(doc, function (next_doc) {
+            domain.scrape1page(next_doc);
+            scrape(next_doc);
         }, data2csv);
     }
 
@@ -120,11 +124,11 @@
         $('#output').focus().select();
     }
 	
-	cordelesp_count_pages();
+	domain.init();
 	create_statusbar();
-    cordelesp_scrape1page(target.document);
+    domain.scrape1page(target.document);
     insert_jquery_then(function ( ) {
 		update_statusbar();
-		scrape_cordelesp(target.document);
+		scrape(target.document);
 	});
 })();

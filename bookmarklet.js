@@ -60,12 +60,13 @@
                     }
                 },
                 scrape1page: function (doc) {
+                    var row, anchors, field, rowdata;
                     for (var i = 1; i <= 100; ++i) {
-                        var row = doc.querySelector('#t' + i);
+                        row = doc.querySelector('#t' + i);
                         if (! row) continue;
-                        var anchors = row.querySelectorAll('a'),
-                            field = row.querySelector('#texto_' + i),
-                            rowdata = [];
+                        anchors = row.querySelectorAll('a');
+                        field = row.querySelector('#texto_' + i);
+                        rowdata = [];
                         if (!anchors || !field || !field.value) continue;
                         for (var j = 0; j < 3; ++j) {
                             rowdata.push(anchors[j].childNodes[0].nodeValue);
@@ -93,12 +94,13 @@
                     });
                 },
                 scrape1page: function (doc) {
-                    var lines = document.querySelector('tt').innerHTML.split('\n');
+                    var lines = document.querySelector('tt').innerHTML.split('\n'),
+                        pieces, century, rowdata;
                     for (var l = lines.length, i = 1; i < l; ++i) {
-                        var pieces = lines[i].split(/\**\s{2,}|<a.+?>|<\/a>/);
+                        pieces = lines[i].split(/\**\s{2,}|<a.+?>|<\/a>/);
                         if (pieces.length < 10) continue;
-                        var century = Number(pieces[4].match(/\d\d/)) + 1,
-                            rowdata = [];
+                        century = Number(pieces[4].match(/\d\d/)) + 1;
+                        rowdata = [];
                         rowdata.push(pieces[0], century, pieces[6]);
                         for (var j = 1; j <= 3; ++j) rowdata.push(pieces[j]);
                         data.push(rowdata);
@@ -122,16 +124,17 @@
         // step below removes mysterious undefined elements that
         // creep into the array
         data = data.filter(function (elem) { return elem; });
-        var text = '';
+        var text = '',
+            aLength;
         for (var l = data.length, i = 0; i < l; ++i) {
-            var a = data[i],
-                m = a.length;
-            if (m != 6) {
+            var a = data[i];
+            aLength = a.length;
+            if (aLength != 6) {
                 console.log('Error: subarray of incorrect length.\n', a);
                 continue;
             }
             text += String(a[0]).trim() + ';' + String(a[1]).trim();
-            for (var j = 2; j < m; ++j) {
+            for (var j = 2; j < aLength; ++j) {
                 text += ';"' + String(a[j]).trim() + '"';
             }
             text += '\n';

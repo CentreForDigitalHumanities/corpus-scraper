@@ -15,14 +15,30 @@
         p = new DOMParser(),
         data = [],
         progress_steps,
-        progress = 0,
-        domain = {
+        progress = 0;
+
+    function create_statusbar ( ) {
+        var statuswidget = document.createElement('div');
+        statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
+        statuswidget.innerHTML = (
+            '<div style="width: 100px; height: 10px; border: 2px solid black;">'
+            + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
+            + '</div>'
+        );
+        target.document.body.appendChild(statuswidget);
+    }
+    
+    function update_statusbar ( ) {
+        var percentage = ++progress / progress_steps * 100;
+        target.document.querySelector('#progress-fill').style.width = percentage + '%';
+    }
+    
+    var domain = {
             'www.corpusdelespanol.org': {
                 init: function ( ) {
                     target = frames[6];
                     var navtable = target.document.querySelectorAll('#zabba table')[1],
-                        navrow = navtable.querySelectorAll('td')[2],
-                        anchor = navrow.querySelectorAll('a')[2];
+                        navrow = navtable.querySelectorAll('td')[2];
                     progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
                 },
                 turnpage_then: function (doc, continuation, alternative) {
@@ -33,8 +49,7 @@
                     }
                     var navrow = navtable.querySelectorAll('td')[2],
                         anchor = navrow.querySelectorAll('a')[2],
-                        progress = navrow.childNodes[4].nodeValue.split('/'),
-                        table = doc.querySelector('#zabba');
+                        progress = navrow.childNodes[4].nodeValue.split('/');
                     if (Number(progress[0]) < Number(progress[1])) {
                         window.jQuery.get(anchor.href, function (data) {
                             var next_doc = p.parseFromString(data, 'text/html');
@@ -67,9 +82,7 @@
                     progress_steps = Number(navnode.innerText.split(/[^0,1-9]+/)[2]) + 1;
                 },
                 turnpage_then: function (doc, continuation, alternative) {
-                        progress = navnode.innerText.split(/[^0,1-9]+/);
-                    var anchor = window.jQuery('td > a')[0],
-                        navnode = window.jQuery('td.texto[align="center"]')[0],
+                    var anchor = window.jQuery('td > a')[0];
                     if (! anchor || anchor.innerText != 'Siguiente') {
                         alternative();
                         return;
@@ -97,34 +110,11 @@
     
     if (! domain) return;
 
-    function create_statusbar ( ) {
-        var statuswidget = document.createElement('div');
-        statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
-        statuswidget.innerHTML = (
-            '<div style="width: 100px; height: 10px; border: 2px solid black;">'
-            + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
-            + '</div>'
-        );
-        target.document.body.appendChild(statuswidget);
-    }
-    
-    function update_statusbar ( ) {
-        var percentage = ++progress / progress_steps * 100;
-        target.document.querySelector('#progress-fill').style.width = percentage + '%';
-    }
-    
     function insert_jquery_then (continuation) {
         var scriptnode = document.createElement('script');
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
-    }
-
-    function scrape (doc) {
-        domain.turnpage_then(doc, function (next_doc) {
-            domain.scrape1page(next_doc);
-            scrape(next_doc);
-        }, data2csv);
     }
 
     function data2csv ( ) {
@@ -157,6 +147,13 @@
         $('#output').focus().select();
     }
 	
+    function scrape (doc) {
+        domain.turnpage_then(doc, function (next_doc) {
+            domain.scrape1page(next_doc);
+            scrape(next_doc);
+        }, data2csv);
+    }
+
     domain.init();
     create_statusbar();
     domain.scrape1page(target.document);
@@ -164,4 +161,4 @@
 		update_statusbar();
 		scrape(target.document);
 	});
-})();
+}());

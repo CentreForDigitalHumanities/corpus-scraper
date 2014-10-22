@@ -97,12 +97,17 @@
                     var lines = doc.querySelector('tt').innerHTML.split('\n'),
                         pieces, century, rowdata;
                     for (var l = lines.length, i = 1; i < l; ++i) {
-                        pieces = lines[i].split(/\**\s{2,}|<a.+?>|<\/a>/);
-                        if (pieces.length < 10) continue;
-                        century = Number(pieces[4].match(/\d\d/)) + 1;
-                        rowdata = [];
-                        rowdata.push(pieces[0], century, pieces[6]);
-                        for (var j = 1; j <= 3; ++j) rowdata.push(pieces[j]);
+                        pieces = lines[i].split(/<a.+?>|<\/a>/);
+                        if (pieces.length < 3) continue;
+                        century = Number(pieces[2].substr(52,15).match(/\d\d/));
+                        rowdata = [
+                            pieces[0].substr(0, 5),
+                            century + 1,
+                            pieces[2].substr(109, 61),
+                            pieces[0].substr(5),
+                            pieces[1],
+                            pieces[2].substr(0, 48)
+                        ];
                         data.push(rowdata);
                     }
                     update_statusbar();

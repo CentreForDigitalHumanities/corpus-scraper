@@ -82,7 +82,7 @@
                     progress_steps = Number(navnode.innerText.split(/[^0,1-9]+/)[2]) + 1;
                 },
                 turnpage_then: function (doc, continuation, alternative) {
-                    var anchor = window.jQuery('td > a')[0];
+                    var anchor = doc.querySelector('td > a');
                     if (! anchor || anchor.innerText != 'Siguiente') {
                         alternative();
                         return;

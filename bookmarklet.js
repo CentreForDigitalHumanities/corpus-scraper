@@ -130,9 +130,9 @@
                 console.log('Error: subarray of incorrect length.\n', a);
                 continue;
             }
-            text += a[0].trim() + ';' + a[1].trim();
+            text += String(a[0]).trim() + ';' + String(a[1]).trim();
             for (var j = 2; j < m; ++j) {
-                text += ';"' + a[j].trim() + '"';
+                text += ';"' + String(a[j]).trim() + '"';
             }
             text += '\n';
         }

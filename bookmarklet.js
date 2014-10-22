@@ -94,7 +94,7 @@
                     });
                 },
                 scrape1page: function (doc) {
-                    var lines = document.querySelector('tt').innerHTML.split('\n'),
+                    var lines = doc.querySelector('tt').innerHTML.split('\n'),
                         pieces, century, rowdata;
                     for (var l = lines.length, i = 1; i < l; ++i) {
                         pieces = lines[i].split(/\**\s{2,}|<a.+?>|<\/a>/);

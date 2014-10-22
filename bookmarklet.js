@@ -144,7 +144,7 @@
             text +
             '</textarea>'
         );
-        $('#output').focus().select();
+        window.jQuery('#output').focus().select();
     }
 	
     function scrape (doc) {

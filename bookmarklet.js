@@ -84,11 +84,11 @@
                 init: function ( ) {
                     target = window;
                     var navnode = document.querySelector('td.texto[align="center"]');
-                    progress_steps = Number(navnode.innerText.split(/[^0,1-9]+/)[2]) + 1;
+                    progress_steps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
                 },
                 turnpage_then: function (doc, continuation, alternative) {
                     var anchor = doc.querySelector('td > a');
-                    if (! anchor || anchor.innerText != 'Siguiente') {
+                    if (! anchor || anchor.textContent != 'Siguiente') {
                         alternative();
                         return;
                     }

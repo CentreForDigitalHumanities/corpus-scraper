@@ -35,7 +35,11 @@
 
 <p>Welcome. CorpusScraper is a bookmarklet that extracts data from an online text corpus and lets you save the data to a CSV file in just a few clicks.</p>
 
-<p><em>Note</em> Please be advised that currently only <a href="http://www.corpusdelespanol.org/">Corpus del Español</a> is supported.</p>
+<p><em>Currently supported:</em><ul>
+    <li><a href="http://www.corpusdelespanol.org/">Corpus del Español</a>
+    <li><a href="http://corpus.rae.es/cordenet.html">Real Academia Española &ndash; CORDE</a>
+    <li><a href="http://corpus.rae.es/creanet.html">Real Academia Española &ndash; CREA</a>
+</ul></p>
 
 <h2>Installation</h2>
 
@@ -44,12 +48,13 @@
     <a id="bookmarklet" title="Drag me" href="javascript:{{{INSERT MINIFIED CODE HERE}}}">
         ScrapeCorpus
     </a><br>
-    <em>Note</em> The bookmarklet requires JavaScript in order to work.
+    Google Chrome is supported, but the bookmarklet should work in other browsers as well.
+    <em>Note</em> The bookmarklet requires JavaScript in order to work.<br>
 </p>
 
 <h2>Usage</h2>
 
-<p>Enter a word-in-context query and load the first page of search results. When the page has completely loaded, click on the bookmarklet in your bookmarks bar. The extraction process starts immediately, although you might not see it at first. After a while (about two seconds per page), the page turns white and a text box appears from which you can copy the CSV code (the text has already been selected for you). Paste the text into an empty plain text file (with e.g. Notepad, TextEdit or gedit) and save it with a .csv extension. The resulting file can be opened with Excel or SPSS. It uses semicolons to separate the values and double quotes to mark text values.</p>
+<p>Enter a word-in-context query and load the first page of search results. When the page has completely loaded, click on the bookmarklet in your bookmarks bar. A progress bar is shown during extraction. After a while (about two seconds per page), the page turns white and a text box appears from which you can copy the CSV code (the text has already been selected for you). Paste the text into an empty plain text file (with e.g. Notepad, TextEdit or gedit) and save it with a .csv extension. Choose UTF-8 as the file encoding. The resulting file can be opened with Excel or SPSS. It uses semicolons to separate the values and double quotes to mark text values.</p>
 
 <footer>
     &copy; 2014 Digital Humanities Lab, Faculty of Humanities, Utrecht University<br>

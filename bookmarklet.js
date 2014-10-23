@@ -14,11 +14,11 @@
     var target,          // frame or window containing first page of results
         parser = new DOMParser(),
         data = [],       // will contain the extracted data in 6-tuples
-        progress_steps,  // number of requests to complete (including jQuery)
+        progressSteps,  // number of requests to complete (including jQuery)
         progress = 0;    // number of requests completed so far
 
     /* Draw an empty status bar on `target.document`. */
-    function create_statusbar ( ) {
+    function createStatusbar ( ) {
         var statuswidget = document.createElement('div');
         statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
         statuswidget.innerHTML = (
@@ -30,8 +30,8 @@
     }
     
     /* Increment `progress` and fill the status bar accordingly. */
-    function update_statusbar ( ) {
-        var percentage = ++progress / progress_steps * 100;
+    function updateStatusbar ( ) {
+        var percentage = ++progress / progressSteps * 100;
         target.document.querySelector('#progress-fill').style.width = percentage + '%';
     }
     
@@ -43,7 +43,7 @@
                 target = frames[6];
                 var navtable = target.document.querySelectorAll('#zabba table')[1],
                     navrow = navtable.querySelectorAll('td')[2];
-                progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
             },
             getNextURL: function (doc) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];
@@ -70,14 +70,14 @@
                     }
                     data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
                 }
-                update_statusbar();
+                updateStatusbar();
             }
         },
         'corpus.rae.es': {
             init: function ( ) {
                 target = window;
                 var navnode = document.querySelector('td.texto[align="center"]');
-                progress_steps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
+                progressSteps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
             },
             getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
@@ -107,7 +107,7 @@
                     ];
                     data.push(rowdata);
                 }
-                update_statusbar();
+                updateStatusbar();
             }
         }
     }[window.location.hostname]);
@@ -115,7 +115,7 @@
     if (!domain) return;
 
     /* Add jQuery to `window`. When ready, call `continuation`. */
-    function insert_jquery_then (continuation) {
+    function insertJQueryThen (continuation) {
         var scriptnode = document.createElement('script');
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
         document.head.appendChild(scriptnode);
@@ -135,7 +135,7 @@
     }
 
     /* Encode the extracted data as CSV and present it to the user. */
-    function data2csv ( ) {
+    function exportCSV ( ) {
         console.log(data);
         // step below removes mysterious undefined elements that
         // creep into the array
@@ -175,14 +175,14 @@
         if (nextURL) retrieveAndProceed(nextURL, function (next_doc) {
             domain.scrape1page(next_doc);
             scrape(next_doc);
-        }); else data2csv();
+        }); else exportCSV();
     }
 
     domain.init();
-    create_statusbar();
+    createStatusbar();
     domain.scrape1page(target.document);
-    insert_jquery_then(function ( ) {
-        update_statusbar();
+    insertJQueryThen(function ( ) {
+        updateStatusbar();
         scrape(target.document);
     });
 }());

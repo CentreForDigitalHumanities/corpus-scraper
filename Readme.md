@@ -46,7 +46,7 @@ add such a key-value pair for each domain that you want to add support for, usin
 
     init: function ( ) {...}
 
-> Initializes the `target` and `progress_steps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progress_steps` should be set to the number of pages to extract from *plus one*.
+> Initializes the `target` and `progressSteps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progressSteps` should be set to the number of pages to extract from *plus one*.
 
     getNextURL: function (doc) {...}
 
@@ -54,6 +54,6 @@ add such a key-value pair for each domain that you want to add support for, usin
 
     scrape1page: function (doc) {...}
 
-> Extracts the data from the page represented by `doc` (again a Document object), appends those data in 6-tuples to the top-level `data` array, and calls `update_statusbar()` in the end. Take note that those 6-tuples should be arrays given in the order [record number, century, source text title, left context, word match, right context].
+> Extracts the data from the page represented by `doc` (again a Document object), appends those data in 6-tuples to the top-level `data` array, and calls `updateStatusbar()` in the end. Take note that those 6-tuples should be arrays given in the order [record number, century, source text title, left context, word match, right context].
 
-Please take note that your custom domain implementation should only use the `target`, `data`, `progress_steps` and `update_statusbar` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll`.
+Please take note that your custom domain implementation should only use the `target`, `data`, `progressSteps` and `updateStatusbar` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll`.

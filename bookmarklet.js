@@ -41,80 +41,80 @@
     }
     
     var domain = {
-            'www.corpusdelespanol.org': {
-                init: function ( ) {
-                    target = frames[6];
-                    var navtable = target.document.querySelectorAll('#zabba table')[1],
-                        navrow = navtable.querySelectorAll('td')[2];
-                    progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
-                },
-                turnpage_then: function (doc, continuation, alternative) {
-                    var navtable = doc.querySelectorAll('#zabba table')[1];
-                    if (! navtable) {
-                        alternative();
-                        return;
-                    }
-                    var navrow = navtable.querySelectorAll('td')[2],
-                        anchor = navrow.querySelectorAll('a')[2],
-                        progress = navrow.childNodes[4].nodeValue.split('/');
-                    if (Number(progress[0]) < Number(progress[1])) {
-                        retrieveAndProceed(anchor.href, continuation);
-                    } else {
-                        alternative();
-                    }
-                },
-                scrape1page: function (doc) {
-                    var row, anchors, field, rowdata;
-                    for (var i = 1; i <= 100; ++i) {
-                        row = doc.querySelector('#t' + i);
-                        if (! row) continue;
-                        anchors = row.querySelectorAll('a');
-                        field = row.querySelector('#texto_' + i);
-                        rowdata = [];
-                        if (!anchors || !field || !field.value) continue;
-                        for (var j = 0; j < 3; ++j) {
-                            rowdata.push(anchors[j].childNodes[0].nodeValue);
-                        }
-                        data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
-                    }
-                    update_statusbar();
+        'www.corpusdelespanol.org': {
+            init: function ( ) {
+                target = frames[6];
+                var navtable = target.document.querySelectorAll('#zabba table')[1],
+                    navrow = navtable.querySelectorAll('td')[2];
+                progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+            },
+            turnpage_then: function (doc, continuation, alternative) {
+                var navtable = doc.querySelectorAll('#zabba table')[1];
+                if (! navtable) {
+                    alternative();
+                    return;
+                }
+                var navrow = navtable.querySelectorAll('td')[2],
+                    anchor = navrow.querySelectorAll('a')[2],
+                    progress = navrow.childNodes[4].nodeValue.split('/');
+                if (Number(progress[0]) < Number(progress[1])) {
+                    retrieveAndProceed(anchor.href, continuation);
+                } else {
+                    alternative();
                 }
             },
-            'corpus.rae.es': {
-                init: function ( ) {
-                    target = window;
-                    var navnode = document.querySelector('td.texto[align="center"]');
-                    progress_steps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
-                },
-                turnpage_then: function (doc, continuation, alternative) {
-                    var anchor = doc.querySelector('td > a');
-                    if (! anchor || anchor.textContent != 'Siguiente') {
-                        alternative();
-                        return;
+            scrape1page: function (doc) {
+                var row, anchors, field, rowdata;
+                for (var i = 1; i <= 100; ++i) {
+                    row = doc.querySelector('#t' + i);
+                    if (! row) continue;
+                    anchors = row.querySelectorAll('a');
+                    field = row.querySelector('#texto_' + i);
+                    rowdata = [];
+                    if (!anchors || !field || !field.value) continue;
+                    for (var j = 0; j < 3; ++j) {
+                        rowdata.push(anchors[j].childNodes[0].nodeValue);
                     }
-                    retrieveAndProceed(anchor.href, continuation);
-                },
-                scrape1page: function (doc) {
-                    var lines = doc.querySelector('tt').innerHTML.split('\n'),
-                        pieces, century, rowdata;
-                    for (var l = lines.length, i = 1; i < l; ++i) {
-                        pieces = lines[i].split(/<a.+?>|<\/a>/);
-                        if (pieces.length < 3) continue;
-                        century = Number(pieces[2].substr(52,15).match(/\d\d/));
-                        rowdata = [
-                            pieces[0].substr(0, 5),
-                            century + 1,
-                            pieces[2].substr(109, 61),
-                            pieces[0].substr(5),
-                            pieces[1],
-                            pieces[2].substr(0, 48)
-                        ];
-                        data.push(rowdata);
-                    }
-                    update_statusbar();
+                    data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
                 }
+                update_statusbar();
             }
-        }[window.location.hostname];
+        },
+        'corpus.rae.es': {
+            init: function ( ) {
+                target = window;
+                var navnode = document.querySelector('td.texto[align="center"]');
+                progress_steps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
+            },
+            turnpage_then: function (doc, continuation, alternative) {
+                var anchor = doc.querySelector('td > a');
+                if (! anchor || anchor.textContent != 'Siguiente') {
+                    alternative();
+                    return;
+                }
+                retrieveAndProceed(anchor.href, continuation);
+            },
+            scrape1page: function (doc) {
+                var lines = doc.querySelector('tt').innerHTML.split('\n'),
+                    pieces, century, rowdata;
+                for (var l = lines.length, i = 1; i < l; ++i) {
+                    pieces = lines[i].split(/<a.+?>|<\/a>/);
+                    if (pieces.length < 3) continue;
+                    century = Number(pieces[2].substr(52,15).match(/\d\d/));
+                    rowdata = [
+                        pieces[0].substr(0, 5),
+                        century + 1,
+                        pieces[2].substr(109, 61),
+                        pieces[0].substr(5),
+                        pieces[1],
+                        pieces[2].substr(0, 48)
+                    ];
+                    data.push(rowdata);
+                }
+                update_statusbar();
+            }
+        }
+    }[window.location.hostname];
     
     if (! domain) return;
 

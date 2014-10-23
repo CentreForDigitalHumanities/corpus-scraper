@@ -130,6 +130,11 @@
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
     }
+    
+    function sanitize (csvValue) {
+        if (typeof csvValue !== 'string') return csvValue;
+        return csvValue.trim().split('"').join('""');
+    }
 
     function data2csv ( ) {
         console.log(data);
@@ -145,9 +150,9 @@
                 console.log('Error: subarray of incorrect length.\n', a);
                 continue;
             }
-            text += String(a[0]).trim() + ';' + String(a[1]).trim();
+            text += sanitize(a[0]) + ';' + sanitize(a[1]);
             for (var j = 2; j < aLength; ++j) {
-                text += ';"' + String(a[j]).trim() + '"';
+                text += ';"' + sanitize(a[j]) + '"';
             }
             text += '\n';
         }

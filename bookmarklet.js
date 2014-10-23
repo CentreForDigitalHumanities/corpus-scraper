@@ -12,7 +12,7 @@
     'use strict';
     
     var target,
-        p = new DOMParser(),
+        parser = new DOMParser(),
         data = [],
         progress_steps,
         progress = 0;
@@ -52,7 +52,7 @@
                         progress = navrow.childNodes[4].nodeValue.split('/');
                     if (Number(progress[0]) < Number(progress[1])) {
                         window.jQuery.get(anchor.href, function (data) {
-                            var next_doc = p.parseFromString(data, 'text/html');
+                            var next_doc = parser.parseFromString(data, 'text/html');
                             continuation(next_doc);
                         });
                     } else {
@@ -89,7 +89,7 @@
                         return;
                     }
                     window.jQuery.get(anchor.href, function (data) {
-                        var next_doc = p.parseFromString(data, 'text/html');
+                        var next_doc = parser.parseFromString(data, 'text/html');
                         continuation(next_doc);
                     });
                 },

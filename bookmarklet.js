@@ -104,7 +104,7 @@
                 var lines = section.innerHTML.split('\n'),
                     pieces, century, rowdata;
                 for (var l = lines.length, i = 1; i < l; ++i) {
-                    pieces = lines[i].split(/<a.+?>|<\/a>/);
+                    pieces = lines[i].split(/<a.+?">|<\/a>/);
                     if (pieces.length < 3) continue;
                     century = Number(pieces[2].substr(52, 15).match(/\d\d/));
                     rowdata = [

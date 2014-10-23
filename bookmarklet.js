@@ -11,12 +11,13 @@
 (function ( ) {
     'use strict';
     
-    var target,
+    var target,          // frame or window containing first page of results
         parser = new DOMParser(),
-        data = [],
-        progress_steps,
-        progress = 0;
+        data = [],       // will contain the extracted data in 6-tuples
+        progress_steps,  // number of requests to complete (including jQuery)
+        progress = 0;    // number of requests completed so far
 
+    /* Draw an empty status bar on `target.document`. */
     function create_statusbar ( ) {
         var statuswidget = document.createElement('div');
         statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
@@ -28,6 +29,7 @@
         target.document.body.appendChild(statuswidget);
     }
     
+    /* Increment `progress` and fill the status bar accordingly. */
     function update_statusbar ( ) {
         var percentage = ++progress / progress_steps * 100;
         target.document.querySelector('#progress-fill').style.width = percentage + '%';
@@ -40,6 +42,8 @@
         });
     }
     
+    // Produces an object with domain-specific code, if available.
+    // Refer to the Readme for a discussion of the purpose of each function.
     var domain = ({
         'www.corpusdelespanol.org': {
             init: function ( ) {
@@ -124,6 +128,7 @@
     
     if (!domain) return;
 
+    /* Add jQuery to `window`. When ready, call `continuation`. */
     function insert_jquery_then (continuation) {
         var scriptnode = document.createElement('script');
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
@@ -136,6 +141,7 @@
         return csvValue.trim().split('"').join('""');
     }
 
+    /* Encode the extracted data as CSV and present it to the user. */
     function data2csv ( ) {
         console.log(data);
         // step below removes mysterious undefined elements that
@@ -167,6 +173,10 @@
         window.jQuery('#output').focus().select();
     }
     
+    /*
+        A "lazy loop": scrape pages until there are no more.
+        Looks like recursion but isn't, because of the JavaScript event model.
+    */
     function scrape (doc) {
         domain.turnpage_then(doc, function (next_doc) {
             domain.scrape1page(next_doc);

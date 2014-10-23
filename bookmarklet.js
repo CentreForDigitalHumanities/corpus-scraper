@@ -40,7 +40,7 @@
         });
     }
     
-    var domain = {
+    var domain = ({
         'www.corpusdelespanol.org': {
             init: function ( ) {
                 target = frames[6];
@@ -50,7 +50,7 @@
             },
             turnpage_then: function (doc, continuation, alternative) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];
-                if (! navtable) {
+                if (!navtable) {
                     alternative();
                     return;
                 }
@@ -67,7 +67,7 @@
                 var row, anchors, field, rowdata;
                 for (var i = 1; i <= 100; ++i) {
                     row = doc.querySelector('#t' + i);
-                    if (! row) continue;
+                    if (!row) continue;
                     anchors = row.querySelectorAll('a');
                     field = row.querySelector('#texto_' + i);
                     rowdata = [];
@@ -88,7 +88,7 @@
             },
             turnpage_then: function (doc, continuation, alternative) {
                 var anchor = doc.querySelector('td > a');
-                if (! anchor || anchor.textContent != 'Siguiente') {
+                if (!anchor || anchor.textContent !== 'Siguiente') {
                     alternative();
                     return;
                 }
@@ -100,7 +100,7 @@
                 for (var l = lines.length, i = 1; i < l; ++i) {
                     pieces = lines[i].split(/<a.+?>|<\/a>/);
                     if (pieces.length < 3) continue;
-                    century = Number(pieces[2].substr(52,15).match(/\d\d/));
+                    century = Number(pieces[2].substr(52, 15).match(/\d\d/));
                     rowdata = [
                         pieces[0].substr(0, 5),
                         century + 1,
@@ -114,9 +114,9 @@
                 update_statusbar();
             }
         }
-    }[window.location.hostname];
+    }[window.location.hostname]);
     
-    if (! domain) return;
+    if (!domain) return;
 
     function insert_jquery_then (continuation) {
         var scriptnode = document.createElement('script');
@@ -135,7 +135,7 @@
         for (var l = data.length, i = 0; i < l; ++i) {
             var a = data[i];
             aLength = a.length;
-            if (aLength != 6) {
+            if (aLength !== 6) {
                 console.log('Error: subarray of incorrect length.\n', a);
                 continue;
             }
@@ -155,7 +155,7 @@
         );
         window.jQuery('#output').focus().select();
     }
-	
+    
     function scrape (doc) {
         domain.turnpage_then(doc, function (next_doc) {
             domain.scrape1page(next_doc);
@@ -167,7 +167,7 @@
     create_statusbar();
     domain.scrape1page(target.document);
     insert_jquery_then(function ( ) {
-		update_statusbar();
-		scrape(target.document);
-	});
+        update_statusbar();
+        scrape(target.document);
+    });
 }());

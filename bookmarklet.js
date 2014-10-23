@@ -95,7 +95,13 @@
                 retrieveAndProceed(anchor.href, continuation);
             },
             scrape1page: function (doc) {
-                var lines = doc.querySelector('tt').innerHTML.split('\n'),
+                var section = doc.querySelector('tt');
+                if (!section) {
+                    console.log('Error: page', progress, 'does not contain data in the expected format.');
+                    console.log(doc);
+                    return;
+                }
+                var lines = section.innerHTML.split('\n'),
                     pieces, century, rowdata;
                 for (var l = lines.length, i = 1; i < l; ++i) {
                     pieces = lines[i].split(/<a.+?>|<\/a>/);

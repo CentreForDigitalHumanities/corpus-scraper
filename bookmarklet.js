@@ -60,8 +60,8 @@
                 }
                 var navrow = navtable.querySelectorAll('td')[2],
                     anchor = navrow.querySelectorAll('a')[2],
-                    progress = navrow.childNodes[4].nodeValue.split('/');
-                if (Number(progress[0]) < Number(progress[1])) {
+                    currentState = navrow.childNodes[4].nodeValue.split('/');
+                if (Number(currentState[0]) < Number(currentState[1])) {
                     retrieveAndProceed(anchor.href, continuation);
                 } else {
                     alternative();

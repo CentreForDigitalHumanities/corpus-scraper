@@ -33,6 +33,13 @@
         target.document.querySelector('#progress-fill').style.width = percentage + '%';
     }
     
+    function retrieveAndProceed (href, continuation) {
+        window.jQuery.get(href, function (data) {
+            var docElem = parser.parseFromString(data, 'text/html');
+            continuation(docElem);
+        });
+    }
+    
     var domain = {
             'www.corpusdelespanol.org': {
                 init: function ( ) {
@@ -51,10 +58,7 @@
                         anchor = navrow.querySelectorAll('a')[2],
                         progress = navrow.childNodes[4].nodeValue.split('/');
                     if (Number(progress[0]) < Number(progress[1])) {
-                        window.jQuery.get(anchor.href, function (data) {
-                            var next_doc = parser.parseFromString(data, 'text/html');
-                            continuation(next_doc);
-                        });
+                        retrieveAndProceed(anchor.href, continuation);
                     } else {
                         alternative();
                     }
@@ -88,10 +92,7 @@
                         alternative();
                         return;
                     }
-                    window.jQuery.get(anchor.href, function (data) {
-                        var next_doc = parser.parseFromString(data, 'text/html');
-                        continuation(next_doc);
-                    });
+                    retrieveAndProceed(anchor.href, continuation);
                 },
                 scrape1page: function (doc) {
                     var lines = doc.querySelector('tt').innerHTML.split('\n'),

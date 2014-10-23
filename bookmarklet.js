@@ -35,13 +35,6 @@
         target.document.querySelector('#progress-fill').style.width = percentage + '%';
     }
     
-    function retrieveAndProceed (href, continuation) {
-        window.jQuery.get(href, function (data) {
-            var docElem = parser.parseFromString(data, 'text/html');
-            continuation(docElem);
-        });
-    }
-    
     // Produces an object with domain-specific code, if available.
     // Refer to the Readme for a discussion of the purpose of each function.
     var domain = ({
@@ -52,20 +45,16 @@
                     navrow = navtable.querySelectorAll('td')[2];
                 progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
             },
-            turnpage_then: function (doc, continuation, alternative) {
+            getNextURL: function (doc) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];
-                if (!navtable) {
-                    alternative();
-                    return;
-                }
+                if (!navtable) return;
                 var navrow = navtable.querySelectorAll('td')[2],
                     anchor = navrow.querySelectorAll('a')[2],
                     currentState = navrow.childNodes[4].nodeValue.split('/');
                 if (Number(currentState[0]) < Number(currentState[1])) {
-                    retrieveAndProceed(anchor.href, continuation);
-                } else {
-                    alternative();
+                    return anchor.href;
                 }
+                // else return undefined
             },
             scrape1page: function (doc) {
                 var row, anchors, field, rowdata;
@@ -90,13 +79,10 @@
                 var navnode = document.querySelector('td.texto[align="center"]');
                 progress_steps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
             },
-            turnpage_then: function (doc, continuation, alternative) {
+            getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
-                if (!anchor || anchor.textContent !== 'Siguiente') {
-                    alternative();
-                    return;
-                }
-                retrieveAndProceed(anchor.href, continuation);
+                if (!anchor || anchor.textContent !== 'Siguiente') return;
+                return anchor.href;
             },
             scrape1page: function (doc) {
                 var section = doc.querySelector('tt');
@@ -134,6 +120,13 @@
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
+    }
+    
+    function retrieveAndProceed (href, continuation) {
+        window.jQuery.get(href, function (data) {
+            var docElem = parser.parseFromString(data, 'text/html');
+            continuation(docElem);
+        });
     }
     
     function sanitize (csvValue) {
@@ -178,10 +171,11 @@
         Looks like recursion but isn't, because of the JavaScript event model.
     */
     function scrape (doc) {
-        domain.turnpage_then(doc, function (next_doc) {
+        var nextURL = domain.getNextURL(doc);
+        if (nextURL) retrieveAndProceed(nextURL, function (next_doc) {
             domain.scrape1page(next_doc);
             scrape(next_doc);
-        }, data2csv);
+        }); else data2csv();
     }
 
     domain.init();

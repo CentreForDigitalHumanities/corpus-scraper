@@ -48,12 +48,12 @@ add such a key-value pair for each domain that you want to add support for, usin
 
 > Initializes the `target` and `progress_steps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progress_steps` should be set to the number of pages to extract from *plus one*.
 
-    turnpage_then: function (doc, continuation, alternative) {...}
+    getNextURL: function (doc) {...}
 
-> Localizes the URL to the next page in `doc`, which is a Document object. If there is no next page it runs `alternative()`, otherwise it runs `retrieveAndProceed(link, continuation)` where `link` is the URL found in `doc`.
+> Localizes the URL to the next page in `doc`, which is a Document object. If there is no next page it returns `undefined`, otherwise it returns the URL.
 
     scrape1page: function (doc) {...}
 
 > Extracts the data from the page represented by `doc` (again a Document object), appends those data in 6-tuples to the top-level `data` array, and calls `update_statusbar()` in the end. Take note that those 6-tuples should be arrays given in the order [record number, century, source text title, left context, word match, right context].
 
-Please take note that your custom domain implementation should only use the `target`, `data`, `progress_steps`, `update_statusbar` and `retrieveAndProceed` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll`.
+Please take note that your custom domain implementation should only use the `target`, `data`, `progress_steps` and `update_statusbar` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll`.

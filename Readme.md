@@ -46,7 +46,7 @@ add such a key-value pair for each domain that you want to add support for, usin
 
     init: function ( ) {...}
 
-> Initializes the `target` and `progressSteps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progressSteps` should be set to the number of pages to extract from *plus one*.
+> Initializes the `target` and `progressSteps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progressSteps` should be set to the number of pages to extract from.
 
     getNextURL: function (doc) {...}
 

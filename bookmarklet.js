@@ -14,7 +14,7 @@
     var target,          // frame or window containing first page of results
         parser = new DOMParser(),
         data = [],       // will contain the extracted data in 6-tuples
-        progressSteps,  // number of requests to complete (including jQuery)
+        progressSteps,   // number of requests to complete (including jQuery)
         progress = 0;    // number of requests completed so far
 
     /* Draw an empty status bar on `target.document`. */
@@ -77,7 +77,7 @@
             init: function ( ) {
                 target = window;
                 var navnode = document.querySelector('td.texto[align="center"]');
-                progressSteps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
+                progressSteps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]);
             },
             getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
@@ -180,9 +180,8 @@
 
     domain.init();
     createStatusbar();
-    domain.scrape1page(target.document);
     insertJQueryThen(function ( ) {
-        updateStatusbar();
+        domain.scrape1page(target.document);
         scrape(target.document);
     });
 }());

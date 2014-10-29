@@ -41,9 +41,11 @@
         'www.corpusdelespanol.org': {
             init: function ( ) {
                 target = frames[6];
-                var navtable = target.document.querySelectorAll('#zabba table')[1],
-                    navrow = navtable.querySelectorAll('td')[2];
-                progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                var navtable = target.document.querySelectorAll('#zabba table')[1];
+                if (navtable) {
+                    var navrow = navtable.querySelectorAll('td')[2];
+                    progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                } else progressSteps = 1;
             },
             getNextURL: function (doc) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];

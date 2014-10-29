@@ -59,7 +59,7 @@
                 // else return undefined
             },
             scrape1page: function (doc) {
-                var row, anchors, field, rowdata;
+                var row, anchors, field, fieldparts, fieldmiddle, rowdata;
                 for (var i = 1; i <= 100; ++i) {
                     row = doc.querySelector('#t' + i);
                     if (!row) continue;
@@ -70,7 +70,15 @@
                     for (var j = 0; j < 3; ++j) {
                         rowdata.push(anchors[j].childNodes[0].nodeValue);
                     }
-                    data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
+                    fieldparts = field.value.split(/<b><u>|<\/u><\/b>/);
+                    fieldmiddle = []
+                    for (var l = fieldparts.length, j = 1; j < l - 1; ++j) {
+                        fieldmiddle.push(fieldparts[j]);
+                    }
+                    rowdata.push(   fieldparts[0],
+                                    fieldmiddle.join(''),
+                                    fieldparts[j]           );
+                    data.push(rowdata);
                 }
                 updateStatusbar();
             }

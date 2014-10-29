@@ -71,7 +71,7 @@
                         rowdata.push(anchors[j].childNodes[0].nodeValue);
                     }
                     fieldparts = field.value.split(/<b><u>|<\/u><\/b>/);
-                    fieldmiddle = []
+                    fieldmiddle = [];
                     for (var l = fieldparts.length, j = 1; j < l - 1; ++j) {
                         fieldmiddle.push(fieldparts[j]);
                     }

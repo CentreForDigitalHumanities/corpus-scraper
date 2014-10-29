@@ -2,10 +2,10 @@
     (c) 2014 Digital Humanities Lab, Faculty of Humanities, Utrecht University
     Author: Julian Gonggrijp, j.gonggrijp@uu.nl
     
-    Automated text scraper for Spanish text corpora:
+    Automated word-in-context scraper for text corpora:
     http://corpus.rae.es/cordenet.html
     http://corpus.rae.es/creanet.html
-    http://www.corpusdelespanol.org/
+    http://corpus.byu.edu/
 */
 
 (function ( ) {

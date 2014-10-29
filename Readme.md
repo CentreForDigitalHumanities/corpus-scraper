@@ -42,7 +42,7 @@ containing key-value pairs that look like this:
 
     'corpus.example.org': {...}
 
-add such a key-value pair for each (top-level) domain that you want to add support for, using an existing pair as an example. Note that you can create aliases afterwards if the same implementation works on multiple domains, like in the following line:
+add such a key-value pair for each domain that you want to add support for, using an existing pair as an example. Note that you can create aliases afterwards if the same implementation works on multiple domains, like in the following line:
 
     domains['www.corpusdelespagnol.org'] = domains['corpus.byu.edu'];
 

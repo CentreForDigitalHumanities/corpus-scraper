@@ -7,7 +7,7 @@ By Digital Humanities Lab, Utrecht University
 Motivation
 ----------
 
-Some online text corpora, such as Corpus del Español, do not offer a button to download your search results in a practical format, effectively expecting you to copy, paste and edit the data manually page by page. CorpusScraper is a bookmarlet that automates that work for you, so saving your search results becomes nearly as easy as if there would be such a button.
+Some online text corpora, such as Corpus del Español, do not offer a button to download your search results in a practical format, effectively expecting you to copy, paste and edit the data manually page by page. CorpusScraper is a bookmarklet that automates that work for you, so saving your search results becomes nearly as easy as if there would be such a button.
 
 See `CorpusScraper.html` for a full explanation of the usage.
 
@@ -15,7 +15,7 @@ See `CorpusScraper.html` for a full explanation of the usage.
 What’s included
 ---------------
 
-The bookmarklet is written for Chrome and appears to work in Safari and Firefox as well. It has not been tested in Internet Explorer but that might work, too.
+The bookmarklet is written for Chrome and appears to work in Safari and Firefox as well. Internet Explorer seems not to work for most corpora, but your mileage may vary (either way, you should have at least version 9 installed). 
 
 Currently, the script can scrape data from [Corpus del Español](http://www.corpusdelespanol.org/) and from Real Academia Española ([CREA](http://corpus.rae.es/creanet.html)/[CORDE](http://corpus.rae.es/cordenet.html)). It is written such that you can add your own implementations for other online word-in-context corpora.
 
@@ -23,7 +23,7 @@ Currently, the script can scrape data from [Corpus del Español](http://www.corp
 How to complete the installer
 -----------------------------
 
-Take the contents of `bookmarklet.js` through a JavaScript minifier of your choice ([packer](http://dean.edwards.name/packer/) by Dean Edwards is known to work). Make a copy of `CorpusScraper.html`, edit the copy and replace the part that looks like
+Take the contents of `bookmarklet.js` through a JavaScript minifier of your choice ([packer](http://dean.edwards.name/packer/) by Dean Edwards is known to work). Make sure to change all occurrences of double quotes (`"`) to the HTML-safe `%22`. Then make a copy of `CorpusScraper.html`, edit the copy and replace the part that looks like
 
     {{{INSERT MINIFIED CODE HERE}}}
 
@@ -42,11 +42,11 @@ containing key-value pairs that look like this:
 
     'corpus.example.org': {...}
 
-add such a key-value pair for each domain that you want to add support for, using an existing pair as an example. At the very least, the value part should contain the following three member functions:
+add such a key-value pair for each (top-level) domain that you want to add support for, using an existing pair as an example. At the very least, the value part should contain the following three member functions:
 
     init: function ( ) {...}
 
-> Initializes the `target` and `progressSteps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progressSteps` should be set to the number of pages to extract from.
+> Initializes the `target` and `progressSteps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progressSteps` should be set to the number of pages to extract from. Make sure to have a special case for when there is only a single page of results with no navigation available (see the Corpus del Español example). 
 
     getNextURL: function (doc) {...}
 
@@ -56,4 +56,4 @@ add such a key-value pair for each domain that you want to add support for, usin
 
 > Extracts the data from the page represented by `doc` (again a Document object), appends those data in 6-tuples to the top-level `data` array, and calls `updateStatusbar()` in the end. Take note that those 6-tuples should be arrays given in the order [record number, century, source text title, left context, word match, right context].
 
-Please take note that your custom domain implementation should only use the `target`, `data`, `progressSteps` and `updateStatusbar` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll`.
+Please take note that your custom domain implementation should only use the `target`, `data`, `progressSteps` and `updateStatusbar` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll` instead. See http://www.w3.org/TR/selectors-api/ for a specification of these selectors. 

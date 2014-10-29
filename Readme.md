@@ -17,7 +17,7 @@ What’s included
 
 The bookmarklet is written for Chrome and appears to work in Safari and Firefox as well. Internet Explorer seems not to work for most corpora, but your mileage may vary (either way, you should have at least version 9 installed). 
 
-Currently, the script can scrape data from [Corpus del Español](http://www.corpusdelespanol.org/) and from Real Academia Española ([CREA](http://corpus.rae.es/creanet.html)/[CORDE](http://corpus.rae.es/cordenet.html)). It is written such that you can add your own implementations for other online word-in-context corpora.
+Currently, the script can scrape data from [all byu.edu corpuses](http://corpus.byu.edu/) and from Real Academia Española ([CREA](http://corpus.rae.es/creanet.html)/[CORDE](http://corpus.rae.es/cordenet.html)). It is written such that you can add your own implementations for other online word-in-context corpora.
 
 
 How to complete the installer
@@ -35,14 +35,18 @@ How to add support for a new online text corpus
 
 The top anonymous function of the script contains a variable declaration that looks like this:
 
-    var domain = ({
-    }[window.location.hostname]);
+    var domains = {
+    };
 
 containing key-value pairs that look like this:
 
     'corpus.example.org': {...}
 
-add such a key-value pair for each (top-level) domain that you want to add support for, using an existing pair as an example. At the very least, the value part should contain the following three member functions:
+add such a key-value pair for each (top-level) domain that you want to add support for, using an existing pair as an example. Note that you can create aliases afterwards if the same implementation works on multiple domains, like in the following line:
+
+    domains['www.corpusdelespagnol.org'] = domains['corpus.byu.edu'];
+
+At the very least, the value part should contain the following three member functions:
 
     init: function ( ) {...}
 

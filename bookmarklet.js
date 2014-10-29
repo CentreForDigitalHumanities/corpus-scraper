@@ -37,8 +37,8 @@
     
     // Produces an object with domain-specific code, if available.
     // Refer to the Readme for a discussion of the purpose of each function.
-    var domain = ({
-        'www.corpusdelespanol.org': {
+    var domains = {
+        'corpus.byu.edu': {
             init: function ( ) {
                 target = frames[6];
                 var navtable = target.document.querySelectorAll('#zabba table')[1];
@@ -120,7 +120,12 @@
                 updateStatusbar();
             }
         }
-    }[window.location.hostname]);
+    };
+    domains['www.corpusdelespagnol.org'] = domains['corpus.byu.edu'];
+    domains['www.corpusdoportugues.org'] = domains['corpus.byu.edu'];
+    domains['googlebooks.byu.edu'] = domains['corpus.byu.edu'];
+    
+    var domain = domains[window.location.hostname];
     
     if (!domain) return;
 

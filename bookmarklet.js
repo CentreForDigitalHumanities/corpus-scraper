@@ -11,13 +11,14 @@
 (function ( ) {
     'use strict';
     
-    var target,
+    var target,          // frame or window containing first page of results
         parser = new DOMParser(),
-        data = [],
-        progress_steps,
-        progress = 0;
+        data = [],       // will contain the extracted data in 6-tuples
+        progressSteps,   // number of requests to complete (including jQuery)
+        progress = 0;    // number of requests completed so far
 
-    function create_statusbar ( ) {
+    /* Draw an empty status bar on `target.document`. */
+    function createStatusbar ( ) {
         var statuswidget = document.createElement('div');
         statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
         statuswidget.innerHTML = (
@@ -28,43 +29,37 @@
         target.document.body.appendChild(statuswidget);
     }
     
-    function update_statusbar ( ) {
-        var percentage = ++progress / progress_steps * 100;
+    /* Increment `progress` and fill the status bar accordingly. */
+    function updateStatusbar ( ) {
+        var percentage = ++progress / progressSteps * 100;
         target.document.querySelector('#progress-fill').style.width = percentage + '%';
     }
     
-    function retrieveAndProceed (href, continuation) {
-        window.jQuery.get(href, function (data) {
-            var docElem = parser.parseFromString(data, 'text/html');
-            continuation(docElem);
-        });
-    }
-    
-    var domain = ({
-        'www.corpusdelespanol.org': {
+    // Produces an object with domain-specific code, if available.
+    // Refer to the Readme for a discussion of the purpose of each function.
+    var domains = {
+        'corpus.byu.edu': {
             init: function ( ) {
                 target = frames[6];
-                var navtable = target.document.querySelectorAll('#zabba table')[1],
-                    navrow = navtable.querySelectorAll('td')[2];
-                progress_steps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                var navtable = target.document.querySelectorAll('#zabba table')[1];
+                if (navtable) {
+                    var navrow = navtable.querySelectorAll('td')[2];
+                    progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+                } else progressSteps = 1;
             },
-            turnpage_then: function (doc, continuation, alternative) {
+            getNextURL: function (doc) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];
-                if (!navtable) {
-                    alternative();
-                    return;
-                }
+                if (!navtable) return;
                 var navrow = navtable.querySelectorAll('td')[2],
                     anchor = navrow.querySelectorAll('a')[2],
-                    progress = navrow.childNodes[4].nodeValue.split('/');
-                if (Number(progress[0]) < Number(progress[1])) {
-                    retrieveAndProceed(anchor.href, continuation);
-                } else {
-                    alternative();
+                    currentState = navrow.childNodes[4].nodeValue.split('/');
+                if (Number(currentState[0]) < Number(currentState[1])) {
+                    return anchor.href;
                 }
+                // else return undefined
             },
             scrape1page: function (doc) {
-                var row, anchors, field, rowdata;
+                var row, anchors, field, fieldparts, fieldmiddle, rowdata;
                 for (var i = 1; i <= 100; ++i) {
                     row = doc.querySelector('#t' + i);
                     if (!row) continue;
@@ -75,24 +70,29 @@
                     for (var j = 0; j < 3; ++j) {
                         rowdata.push(anchors[j].childNodes[0].nodeValue);
                     }
-                    data.push(rowdata.concat(field.value.split(/<b><u>|<\/u><\/b>/)));
+                    fieldparts = field.value.split(/<b><u>|<\/u><\/b>/);
+                    fieldmiddle = []
+                    for (var l = fieldparts.length, j = 1; j < l - 1; ++j) {
+                        fieldmiddle.push(fieldparts[j]);
+                    }
+                    rowdata.push(   fieldparts[0],
+                                    fieldmiddle.join(''),
+                                    fieldparts[j]           );
+                    data.push(rowdata);
                 }
-                update_statusbar();
+                updateStatusbar();
             }
         },
         'corpus.rae.es': {
             init: function ( ) {
                 target = window;
                 var navnode = document.querySelector('td.texto[align="center"]');
-                progress_steps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]) + 1;
+                progressSteps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]);
             },
-            turnpage_then: function (doc, continuation, alternative) {
+            getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
-                if (!anchor || anchor.textContent !== 'Siguiente') {
-                    alternative();
-                    return;
-                }
-                retrieveAndProceed(anchor.href, continuation);
+                if (!anchor || anchor.textContent !== 'Siguiente') return;
+                return anchor.href;
             },
             scrape1page: function (doc) {
                 var section = doc.querySelector('tt');
@@ -117,18 +117,31 @@
                     ];
                     data.push(rowdata);
                 }
-                update_statusbar();
+                updateStatusbar();
             }
         }
-    }[window.location.hostname]);
+    };
+    domains['www.corpusdelespagnol.org'] = domains['corpus.byu.edu'];
+    domains['www.corpusdoportugues.org'] = domains['corpus.byu.edu'];
+    domains['googlebooks.byu.edu'] = domains['corpus.byu.edu'];
+    
+    var domain = domains[window.location.hostname];
     
     if (!domain) return;
 
-    function insert_jquery_then (continuation) {
+    /* Add jQuery to `window`. When ready, call `continuation`. */
+    function insertJQueryThen (continuation) {
         var scriptnode = document.createElement('script');
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
+    }
+    
+    function retrieveAndProceed (href, continuation) {
+        window.jQuery.get(href, function (data) {
+            var docElem = parser.parseFromString(data, 'text/html');
+            continuation(docElem);
+        });
     }
     
     function sanitize (csvValue) {
@@ -136,7 +149,8 @@
         return csvValue.trim().split('"').join('""');
     }
 
-    function data2csv ( ) {
+    /* Encode the extracted data as CSV and present it to the user. */
+    function exportCSV ( ) {
         console.log(data);
         // step below removes mysterious undefined elements that
         // creep into the array
@@ -167,18 +181,22 @@
         window.jQuery('#output').focus().select();
     }
     
+    /*
+        A "lazy loop": scrape pages until there are no more.
+        Looks like recursion but isn't, because of the JavaScript event model.
+    */
     function scrape (doc) {
-        domain.turnpage_then(doc, function (next_doc) {
+        var nextURL = domain.getNextURL(doc);
+        if (nextURL) retrieveAndProceed(nextURL, function (next_doc) {
             domain.scrape1page(next_doc);
             scrape(next_doc);
-        }, data2csv);
+        }); else exportCSV();
     }
 
     domain.init();
-    create_statusbar();
-    domain.scrape1page(target.document);
-    insert_jquery_then(function ( ) {
-        update_statusbar();
+    createStatusbar();
+    insertJQueryThen(function ( ) {
+        domain.scrape1page(target.document);
         scrape(target.document);
     });
 }());

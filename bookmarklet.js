@@ -121,7 +121,7 @@
             }
         }
     };
-    domains['www.corpusdelespagnol.org'] = domains['corpus.byu.edu'];
+    domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];
     domains['www.corpusdoportugues.org'] = domains['corpus.byu.edu'];
     domains['googlebooks.byu.edu'] = domains['corpus.byu.edu'];
     

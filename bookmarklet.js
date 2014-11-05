@@ -41,6 +41,7 @@
         'corpus.byu.edu': {
             init: function ( ) {
                 target = frames[6];
+                this.rowsPerPage = frames[2].document.querySelector('#kh').value;
                 var navtable = target.document.querySelectorAll('#zabba table')[1];
                 if (navtable) {
                     var navrow = navtable.querySelectorAll('td')[2];
@@ -60,7 +61,7 @@
             },
             scrape1page: function (doc) {
                 var row, anchors, field, fieldparts, fieldmiddle, rowdata;
-                for (var i = 1; i <= 100; ++i) {
+                for (var i = 1; i <= this.rowsPerPage; ++i) {
                     row = doc.querySelector('#t' + i);
                     if (!row) continue;
                     anchors = row.querySelectorAll('a');
@@ -91,7 +92,10 @@
             },
             getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
-                if (!anchor || anchor.textContent !== 'Siguiente') return;
+                if (!anchor || anchor.textContent !== 'Siguiente') {
+                    console.log(doc);
+                    return;
+                }
                 return anchor.href;
             },
             scrape1page: function (doc) {
@@ -186,17 +190,12 @@
         Looks like recursion but isn't, because of the JavaScript event model.
     */
     function scrape (doc) {
+        domain.scrape1page(doc);
         var nextURL = domain.getNextURL(doc);
-        if (nextURL) retrieveAndProceed(nextURL, function (next_doc) {
-            domain.scrape1page(next_doc);
-            scrape(next_doc);
-        }); else exportCSV();
+        if (nextURL) retrieveAndProceed(nextURL, scrape); else exportCSV();
     }
 
     domain.init();
     createStatusbar();
-    insertJQueryThen(function ( ) {
-        domain.scrape1page(target.document);
-        scrape(target.document);
-    });
+    insertJQueryThen(function ( ) { scrape(target.document); });
 }());

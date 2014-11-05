@@ -186,17 +186,12 @@
         Looks like recursion but isn't, because of the JavaScript event model.
     */
     function scrape (doc) {
+        domain.scrape1page(doc);
         var nextURL = domain.getNextURL(doc);
-        if (nextURL) retrieveAndProceed(nextURL, function (next_doc) {
-            domain.scrape1page(next_doc);
-            scrape(next_doc);
-        }); else exportCSV();
+        if (nextURL) retrieveAndProceed(nextURL, scrape); else exportCSV();
     }
 
     domain.init();
     createStatusbar();
-    insertJQueryThen(function ( ) {
-        domain.scrape1page(target.document);
-        scrape(target.document);
-    });
+    insertJQueryThen(function ( ) { scrape(target.document); });
 }());

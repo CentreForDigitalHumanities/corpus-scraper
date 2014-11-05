@@ -191,10 +191,16 @@
         Looks like recursion but isn't, because of the JavaScript event model.
     */
     function scrape (doc) {
+        var start = new Date(),
+            nextURL = domain.getNextURL(doc);
         domain.scrape1page(doc);
         updateStatusbar();
-        var nextURL = domain.getNextURL(doc);
-        if (nextURL) retrieveAndProceed(nextURL, scrape); else exportCSV();
+        if (nextURL){
+            var wait = Math.max(0, 1000 - (new Date() - start));
+            window.setTimeout(retrieveAndProceed, wait, nextURL, scrape);
+        } else {
+            exportCSV();
+        }
     }
 
     domain.init();

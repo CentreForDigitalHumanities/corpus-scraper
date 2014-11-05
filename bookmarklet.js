@@ -32,7 +32,10 @@
             },
             getNextURL: function (doc) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];
-                if (!navtable) return;
+                if (!navtable) {
+                    console.log(doc);
+                    return;
+                }
                 var navrow = navtable.querySelectorAll('td')[2],
                     anchor = navrow.querySelectorAll('a')[2],
                     currentState = navrow.childNodes[4].nodeValue.split('/');

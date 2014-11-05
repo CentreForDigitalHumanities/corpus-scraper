@@ -91,7 +91,10 @@
             },
             getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
-                if (!anchor || anchor.textContent !== 'Siguiente') return;
+                if (!anchor || anchor.textContent !== 'Siguiente') {
+                    console.log(doc);
+                    return;
+                }
                 return anchor.href;
             },
             scrape1page: function (doc) {

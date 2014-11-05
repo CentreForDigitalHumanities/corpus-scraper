@@ -196,7 +196,7 @@
         domain.scrape1page(doc);
         updateStatusbar();
         if (nextURL){
-            var wait = Math.max(0, 1000 - (new Date() - start));
+            var wait = Math.max(0, 500 - (new Date() - start));
             window.setTimeout(retrieveAndProceed, wait, nextURL, scrape);
         } else {
             exportCSV();

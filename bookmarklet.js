@@ -32,15 +32,12 @@
             },
             getNextURL: function (doc) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];
-                if (!navtable) {
-                    console.log(doc);
-                    return;
-                }
+                if (!navtable) return;
                 var navrow = navtable.querySelectorAll('td')[2],
                     anchor = navrow.querySelectorAll('a')[2],
                     currentState = navrow.childNodes[4].nodeValue.split('/');
-                if (Number(currentState[0]) < Number(currentState[1])) {
-                    return anchor.href;
+                if (anchor && Number(currentState[0]) < Number(currentState[1])) {
+                    return anchor.getAttribute('href');
                 }
                 // else return undefined
             },
@@ -76,17 +73,13 @@
             },
             getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
-                if (!anchor || anchor.textContent !== 'Siguiente') {
-                    console.log(doc);
-                    return;
-                }
-                return anchor.href;
+                if (!anchor || anchor.textContent !== 'Siguiente') return;
+                return anchor.getAttribute('href');
             },
             scrape1page: function (doc) {
                 var section = doc.querySelector('tt');
                 if (!section) {
                     console.log('Error: page', progress, 'does not contain data in the expected format.');
-                    console.log(doc);
                     return;
                 }
                 var lines = section.innerHTML.split('\n'),
@@ -191,6 +184,7 @@
         Looks like recursion but isn't, because of the JavaScript event model.
     */
     function scrape (doc) {
+        console.log(doc);
         var start = new Date(),
             nextURL = domain.getNextURL(doc);
         domain.scrape1page(doc);

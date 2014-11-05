@@ -55,7 +55,7 @@ At the very least, the value part should contain the following three member func
 
     getNextURL: function (doc) {...}
 
-> Localizes the URL to the next page in `doc`, which is a Document object. If there is no next page it returns `undefined`, otherwise it returns the URL.
+> Localizes the URL to the next page in `doc`, which is a Document object. If there is no next page it returns `undefined`, otherwise it returns the URL. Note that you cannot return the URL simply as `anchor.href`, because Chrome does not add the `href` property to anchor elements when the containing document is parsed in the background without rendering it. Instead, you should return `anchor.getAttribute('href')`.
 
     scrape1page: function (doc) {...}
 

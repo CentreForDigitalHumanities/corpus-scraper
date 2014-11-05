@@ -2,10 +2,10 @@
     (c) 2014 Digital Humanities Lab, Faculty of Humanities, Utrecht University
     Author: Julian Gonggrijp, j.gonggrijp@uu.nl
     
-    Automated text scraper for Spanish text corpora:
+    Automated word-in-context scraper for text corpora:
     http://corpus.rae.es/cordenet.html
     http://corpus.rae.es/creanet.html
-    http://www.corpusdelespanol.org/
+    http://corpus.byu.edu/
 */
 
 (function ( ) {
@@ -17,30 +17,13 @@
         progressSteps,   // number of requests to complete (including jQuery)
         progress = 0;    // number of requests completed so far
 
-    /* Draw an empty status bar on `target.document`. */
-    function createStatusbar ( ) {
-        var statuswidget = document.createElement('div');
-        statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
-        statuswidget.innerHTML = (
-            '<div style="width: 100px; height: 10px; border: 2px solid black;">'
-            + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
-            + '</div>'
-        );
-        target.document.body.appendChild(statuswidget);
-    }
-    
-    /* Increment `progress` and fill the status bar accordingly. */
-    function updateStatusbar ( ) {
-        var percentage = ++progress / progressSteps * 100;
-        target.document.querySelector('#progress-fill').style.width = percentage + '%';
-    }
-    
     // Produces an object with domain-specific code, if available.
     // Refer to the Readme for a discussion of the purpose of each function.
     var domains = {
         'corpus.byu.edu': {
             init: function ( ) {
                 target = frames[6];
+                this.rowsPerPage = frames[2].document.querySelector('#kh').value;
                 var navtable = target.document.querySelectorAll('#zabba table')[1];
                 if (navtable) {
                     var navrow = navtable.querySelectorAll('td')[2];
@@ -49,7 +32,10 @@
             },
             getNextURL: function (doc) {
                 var navtable = doc.querySelectorAll('#zabba table')[1];
-                if (!navtable) return;
+                if (!navtable) {
+                    console.log(doc);
+                    return;
+                }
                 var navrow = navtable.querySelectorAll('td')[2],
                     anchor = navrow.querySelectorAll('a')[2],
                     currentState = navrow.childNodes[4].nodeValue.split('/');
@@ -60,7 +46,7 @@
             },
             scrape1page: function (doc) {
                 var row, anchors, field, fieldparts, fieldmiddle, rowdata;
-                for (var i = 1; i <= 100; ++i) {
+                for (var i = 1; i <= this.rowsPerPage; ++i) {
                     row = doc.querySelector('#t' + i);
                     if (!row) continue;
                     anchors = row.querySelectorAll('a');
@@ -80,7 +66,6 @@
                                     fieldparts[j]           );
                     data.push(rowdata);
                 }
-                updateStatusbar();
             }
         },
         'corpus.rae.es': {
@@ -91,7 +76,10 @@
             },
             getNextURL: function (doc) {
                 var anchor = doc.querySelector('td > a');
-                if (!anchor || anchor.textContent !== 'Siguiente') return;
+                if (!anchor || anchor.textContent !== 'Siguiente') {
+                    console.log(doc);
+                    return;
+                }
                 return anchor.href;
             },
             scrape1page: function (doc) {
@@ -117,7 +105,6 @@
                     ];
                     data.push(rowdata);
                 }
-                updateStatusbar();
             }
         }
     };
@@ -135,6 +122,24 @@
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
+    }
+    
+    /* Draw an empty status bar on `target.document`. */
+    function createStatusbar ( ) {
+        var statuswidget = document.createElement('div');
+        statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
+        statuswidget.innerHTML = (
+            '<div style="width: 100px; height: 10px; border: 2px solid black;">'
+            + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
+            + '</div>'
+        );
+        target.document.body.appendChild(statuswidget);
+    }
+    
+    /* Increment `progress` and fill the status bar accordingly. */
+    function updateStatusbar ( ) {
+        var percentage = ++progress / progressSteps * 100;
+        target.document.querySelector('#progress-fill').style.width = percentage + '%';
     }
     
     function retrieveAndProceed (href, continuation) {
@@ -186,17 +191,19 @@
         Looks like recursion but isn't, because of the JavaScript event model.
     */
     function scrape (doc) {
-        var nextURL = domain.getNextURL(doc);
-        if (nextURL) retrieveAndProceed(nextURL, function (next_doc) {
-            domain.scrape1page(next_doc);
-            scrape(next_doc);
-        }); else exportCSV();
+        var start = new Date(),
+            nextURL = domain.getNextURL(doc);
+        domain.scrape1page(doc);
+        updateStatusbar();
+        if (nextURL){
+            var wait = Math.max(0, 500 - (new Date() - start));
+            window.setTimeout(retrieveAndProceed, wait, nextURL, scrape);
+        } else {
+            exportCSV();
+        }
     }
 
     domain.init();
     createStatusbar();
-    insertJQueryThen(function ( ) {
-        domain.scrape1page(target.document);
-        scrape(target.document);
-    });
+    insertJQueryThen(function ( ) { scrape(target.document); });
 }());

@@ -17,24 +17,6 @@
         progressSteps,   // number of requests to complete (including jQuery)
         progress = 0;    // number of requests completed so far
 
-    /* Draw an empty status bar on `target.document`. */
-    function createStatusbar ( ) {
-        var statuswidget = document.createElement('div');
-        statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
-        statuswidget.innerHTML = (
-            '<div style="width: 100px; height: 10px; border: 2px solid black;">'
-            + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
-            + '</div>'
-        );
-        target.document.body.appendChild(statuswidget);
-    }
-    
-    /* Increment `progress` and fill the status bar accordingly. */
-    function updateStatusbar ( ) {
-        var percentage = ++progress / progressSteps * 100;
-        target.document.querySelector('#progress-fill').style.width = percentage + '%';
-    }
-    
     // Produces an object with domain-specific code, if available.
     // Refer to the Readme for a discussion of the purpose of each function.
     var domains = {
@@ -81,7 +63,6 @@
                                     fieldparts[j]           );
                     data.push(rowdata);
                 }
-                updateStatusbar();
             }
         },
         'corpus.rae.es': {
@@ -121,7 +102,6 @@
                     ];
                     data.push(rowdata);
                 }
-                updateStatusbar();
             }
         }
     };
@@ -139,6 +119,24 @@
         scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
         document.head.appendChild(scriptnode);
         scriptnode.addEventListener('load', continuation);
+    }
+    
+    /* Draw an empty status bar on `target.document`. */
+    function createStatusbar ( ) {
+        var statuswidget = document.createElement('div');
+        statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
+        statuswidget.innerHTML = (
+            '<div style="width: 100px; height: 10px; border: 2px solid black;">'
+            + '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
+            + '</div>'
+        );
+        target.document.body.appendChild(statuswidget);
+    }
+    
+    /* Increment `progress` and fill the status bar accordingly. */
+    function updateStatusbar ( ) {
+        var percentage = ++progress / progressSteps * 100;
+        target.document.querySelector('#progress-fill').style.width = percentage + '%';
     }
     
     function retrieveAndProceed (href, continuation) {
@@ -191,6 +189,7 @@
     */
     function scrape (doc) {
         domain.scrape1page(doc);
+        updateStatusbar();
         var nextURL = domain.getNextURL(doc);
         if (nextURL) retrieveAndProceed(nextURL, scrape); else exportCSV();
     }

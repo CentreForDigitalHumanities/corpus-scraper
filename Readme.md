@@ -36,6 +36,7 @@ How to add support for a new online text corpus
 The top anonymous function of the script contains a variable declaration that looks like this:
 
     var domains = {
+        ...
     };
 
 containing key-value pairs that look like this:
@@ -44,7 +45,7 @@ containing key-value pairs that look like this:
 
 add such a key-value pair for each domain that you want to add support for, using an existing pair as an example. Note that you can create aliases afterwards if the same implementation works on multiple domains, like in the following line:
 
-    domains['www.corpusdelespagnol.org'] = domains['corpus.byu.edu'];
+    domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];
 
 At the very least, the value part should contain the following three member functions:
 
@@ -58,6 +59,6 @@ At the very least, the value part should contain the following three member func
 
     scrape1page: function (doc) {...}
 
-> Extracts the data from the page represented by `doc` (again a Document object), appends those data in 6-tuples to the top-level `data` array, and calls `updateStatusbar()` in the end. Take note that those 6-tuples should be arrays given in the order [record number, century, source text title, left context, word match, right context].
+> Extracts the data from the page represented by `doc` (again a Document object) and appends those data in 6-tuples to the top-level `data` array. Take note that those 6-tuples should be arrays given in the order [record number, century, source text title, left context, word match, right context].
 
-Please take note that your custom domain implementation should only use the `target`, `data`, `progressSteps` and `updateStatusbar` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll` instead. See http://www.w3.org/TR/selectors-api/ for a specification of these selectors. 
+Please take note that your custom domain implementation should only use the `target`, `data` and `progressSteps` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll` instead. See http://www.w3.org/TR/selectors-api/ for a specification of these selectors. 

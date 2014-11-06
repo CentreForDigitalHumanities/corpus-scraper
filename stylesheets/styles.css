@@ -45,6 +45,22 @@ a small {
   display:block;
 }
 
+#bookmarklet {
+    display: inline-block;
+    clear: both;
+    margin: 1em 0;
+    border: 2px dashed black;
+    border-radius: 8px;
+    padding: 1em;
+    background-color: #ddd;
+    font-style: italic;
+    cursor: move;
+}
+
+#bookmarklet:active {
+    cursor: grabbing;
+}
+
 .wrapper {
   width:860px;
   margin:0 auto;

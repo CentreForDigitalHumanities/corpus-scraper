@@ -76,25 +76,63 @@
 				if (!anchor || anchor.textContent !== 'Siguiente') return;
 				return anchor.getAttribute('href');
 			},
+			columnPositions: function(section, titleLine) {
+				var firstMatch = section.innerHTML.split('\n')[1],
+				    columnHeads = titleLine.split(/(\s+)/),
+				    anchorParts = firstMatch.split(/<a.+?">|<\/a>/),
+				    columns = {},
+				    currentHeader,
+				    range,
+				    index = 0;
+				console.log(titleLine, columnHeads, anchorParts);
+				for (var l = columnHeads.length, i = 0; i < l; i += 2) {
+					switch (columnHeads[i]) {
+					case 'N\xBA': currentHeader = 'number'; break;
+					case 'A\xD1O': currentHeader = 'date'; break;
+					case 'T\xCDTULO': currentHeader = 'text'; break;
+					case 'CONCORDANCIA': currentHeader = 'contextLeft'; break;
+					default: currentHeader = null;
+					}
+					range = [index];
+					index += columnHeads[i].length;
+					if (i + 1 < l) index += columnHeads[i + 1].length;
+					if (currentHeader) {
+						range.push(index);
+						columns[currentHeader] = range;
+					}
+				}
+				// Split the "CONCORDANCIA" column into context and sample.
+				range = [
+					anchorParts[0].length,
+					anchorParts[0].length + anchorParts[1].length
+				];
+				columns.sample = range;
+				// Substract 5 to remove the asterisks and trailing space.
+				columns.contextRight = [range[1], columns.contextLeft[1] - 5];
+				columns.contextLeft[1] = range[0];
+				console.log(columns);
+				return columns;
+			},
 			scrape1page: function (doc) {
 				var section = doc.querySelector('tt');
 				if (!section) {
 					console.log('Error: page', progress, 'does not contain data in the expected format.');
 					return;
 				}
-				var lines = section.innerHTML.split('\n'),
-				    pieces, century, rowdata;
+				var lines = section.textContent.split('\n'),
+				    columns = this.columnPositions(section, lines[0]),
+				    minLength = columns.text[1],
+				    line, rowdata;
 				for (var l = lines.length, i = 1; i < l; ++i) {
-					pieces = lines[i].split(/<a.+?">|<\/a>/);
-					if (pieces.length < 3) continue;
-					century = Number(pieces[2].substr(52, 15).match(/\d\d/));
+					line = lines[i];
+					if (line.length < minLength) continue;
 					rowdata = [
-						pieces[0].substr(0, 5),
-						century + 1,
-						pieces[2].substr(109, 61),
-						pieces[0].substr(5),
-						pieces[1],
-						pieces[2].substr(0, 48)
+						line.slice.apply(line, columns.number),
+						line.slice.apply(line, columns.date),
+						line.slice.apply(line, columns.text),
+						line.slice.apply(line, columns.contextLeft),
+						line.slice.apply(line, columns.sample),
+						line.slice.apply(line, columns.contextRight),
 					];
 					data.push(rowdata);
 				}

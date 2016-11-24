@@ -84,14 +84,24 @@
 				    currentHeader,
 				    range,
 				    index = 0;
-				console.log(titleLine, columnHeads, anchorParts);
 				for (var l = columnHeads.length, i = 0; i < l; i += 2) {
 					switch (columnHeads[i]) {
-					case 'N\xBA': currentHeader = 'number'; break;
-					case 'A\xD1O': currentHeader = 'date'; break;
-					case 'T\xCDTULO': currentHeader = 'text'; break;
-					case 'CONCORDANCIA': currentHeader = 'contextLeft'; break;
-					default: currentHeader = null;
+					// \xBA might be replaced by \ufffd on encoding mismatch.
+					case 'N\ufffd':
+					case 'N\xBA':
+						currentHeader = 'number';
+						break;
+					case 'A\xD1O':
+						currentHeader = 'date';
+						break;
+					case 'T\xCDTULO':
+						currentHeader = 'text';
+						break;
+					case 'CONCORDANCIA':
+						currentHeader = 'contextLeft';
+						break;
+					default:
+						currentHeader = null;
 					}
 					range = [index];
 					index += columnHeads[i].length;
@@ -110,7 +120,6 @@
 				// Substract 5 to remove the asterisks and trailing space.
 				columns.contextRight = [range[1], columns.contextLeft[1] - 5];
 				columns.contextLeft[1] = range[0];
-				console.log(columns);
 				return columns;
 			},
 			scrape1page: function (doc) {

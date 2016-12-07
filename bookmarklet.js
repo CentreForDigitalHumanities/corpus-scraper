@@ -1,5 +1,5 @@
 /*
-	(c) 2014 Digital Humanities Lab, Faculty of Humanities, Utrecht University
+	(c) 2014, 2016 Digital Humanities Lab, Utrecht University
 	Author: Julian Gonggrijp, j.gonggrijp@uu.nl
 	
 	Automated word-in-context scraper for text corpora:

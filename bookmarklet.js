@@ -13,7 +13,7 @@
 	
 	var target,          // frame or window containing first page of results
 	    parser = new DOMParser(),
-	    data = [],       // will contain the extracted data in 6-tuples
+	    data = [],       // will contain the extracted data in subarrays
 	    progressSteps,   // number of requests to complete (including jQuery)
 	    progress = 0;    // number of requests completed so far
 
@@ -21,6 +21,10 @@
 	// Refer to the Readme for a discussion of the purpose of each function.
 	var domains = {
 		'corpus.byu.edu': {
+			columns: [
+				'number', 'century', 'text',
+				'contextLeft', 'sample', 'contextRight',
+			],
 			init: function ( ) {
 				target = frames[6];
 				this.rowsPerPage = frames[2].document.querySelector('#kh').value;
@@ -66,6 +70,10 @@
 			}
 		},
 		'corpus.rae.es': {
+			columns: [
+				'number', 'century', 'text',
+				'contextLeft', 'sample', 'contextRight',
+			],
 			init: function ( ) {
 				target = window;
 				var navnode = document.querySelector('td.texto[align="center"]');
@@ -205,7 +213,7 @@
 		for (var l = data.length, i = 0; i < l; ++i) {
 			var a = data[i];
 			aLength = a.length;
-			if (aLength !== 6) {
+			if (aLength !== domain.columns.length) {
 				console.log('Error: subarray of incorrect length.\n', a);
 				continue;
 			}
@@ -219,7 +227,7 @@
 			'Scraping complete. Please copy the contents below ' +
 			'into a plaintext document and give it a .csv extension.<br>' +
 			'<textarea id="output" style="width: 50ex; height: 10em;">' +
-			'number;century;text;contextLeft;sample;contextRight\n' +
+			domain.columns.join(';') + '\n' +
 			text +
 			'</textarea>'
 		);

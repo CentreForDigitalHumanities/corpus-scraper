@@ -47,20 +47,21 @@
 				// else return undefined
 			},
 			scrape1page: function(doc) {
-				var row, anchors, field, fieldparts, fieldmiddle, rowdata;
-				for (var i = 1; i <= this.rowsPerPage; ++i) {
+				var row, anchors, field, fieldparts, fieldmiddle, rowdata,
+				    i, j, l;
+				for (i = 1; i <= this.rowsPerPage; ++i) {
 					row = doc.querySelector('#t' + i);
 					if (!row) continue;
 					anchors = row.querySelectorAll('a');
 					field = row.querySelector('#texto_' + i);
 					rowdata = [];
 					if (!anchors || !field || !field.value) continue;
-					for (var j = 0; j < 3; ++j) {
+					for (j = 0; j < 3; ++j) {
 						rowdata.push(anchors[j].childNodes[0].nodeValue);
 					}
 					fieldparts = field.value.split(/<b><u>|<\/u><\/b>/);
 					fieldmiddle = [];
-					for (var l = fieldparts.length, j = 1; j < l - 1; ++j) {
+					for (l = fieldparts.length, j = 1; j < l - 1; ++j) {
 						fieldmiddle.push(fieldparts[j]);
 					}
 					rowdata.push(   fieldparts[0],
@@ -92,8 +93,9 @@
 				    columns = {},
 				    currentHeader,
 				    range,
-				    index = 0;
-				for (var l = columnHeads.length, i = 0; i < l; i += 2) {
+				    index = 0,
+				    l, i;
+				for (l = columnHeads.length, i = 0; i < l; i += 2) {
 					switch (columnHeads[i]) {
 					// \xBA might be replaced by \ufffd on encoding mismatch.
 					case 'N\ufffd':
@@ -140,8 +142,8 @@
 				var lines = section.textContent.split('\n'),
 				    columns = this.columnPositions(section, lines[0]),
 				    minLength = columns.text[1],
-				    line, rowdata;
-				for (var l = lines.length, i = 1; i < l; ++i) {
+				    line, rowdata, l, i;
+				for (l = lines.length, i = 1; i < l; ++i) {
 					line = lines[i];
 					if (line.length < minLength) continue;
 					rowdata = [
@@ -175,13 +177,15 @@
 	
 	/* Draw an empty status bar on `target.document`. */
 	function createStatusbar() {
-		var statuswidget = document.createElement('div');
+		var statuswidget = document.createElement('div'),
+		    outerBar = document.createElement('div'),
+		    innerBar = document.createElement('div');
 		statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
-		statuswidget.innerHTML = (
-			'<div style="width: 100px; height: 10px; border: 2px solid black;">'
-			+ '<div id="progress-fill" style="width: 0%; height: 100%; background: #d10" />'
-			+ '</div>'
-		);
+		outerBar.setAttribute('style', 'width: 100px; height: 10px; border: 2px solid black;');
+		innerBar.setAttribute('id', 'progress-fill');
+		innerBar.setAttribute('style', 'width: 0%; height: 100%; background: #d10');
+		outerBar.appendChild(innerBar);
+		statuswidget.appendChild(outerBar);
 		target.document.body.appendChild(statuswidget);
 	}
 	
@@ -212,9 +216,11 @@
 		// creep into the array
 		data = data.filter(function(elem) { return elem; });
 		var rows = [],
-		    aLength;
-		for (var l = data.length, i = 0; i < l; ++i) {
-			var a = data[i];
+		    $ = window.jQuery,
+		    body = $(document.body),
+		    aLength, l, i, a;
+		for (l = data.length, i = 0; i < l; ++i) {
+			a = data[i];
 			aLength = a.length;
 			if (aLength !== domain.columns.length) {
 				console.log('Error: subarray of incorrect length.\n', a);
@@ -222,15 +228,14 @@
 			}
 			rows.push(a.map(sanitize).join(';'));
 		}
-		document.write(
+		body.empty().text(
 			'Scraping complete. Please copy the contents below ' +
-			'into a plaintext document and give it a .csv extension.<br>' +
-			'<textarea id="output" style="width: 50ex; height: 10em;">' +
+			'into a plaintext document and give it a .csv extension.'
+		).append('<br>');
+		$('<textarea>').css({width: '50ex', height: '10em'}).text(
 			domain.columns.join(';') + '\n' +
-			rows.join('\n') +
-			'</textarea>'
-		);
-		window.jQuery('#output').focus().select();
+			rows.join('\n')
+		).appendTo(body).focus().select();
 	}
 	
 	/*
@@ -240,11 +245,12 @@
 	function scrape(doc) {
 		console.log(doc);
 		var start = new Date(),
-		    nextURL = domain.getNextURL(doc);
+		    nextURL = domain.getNextURL(doc),
+		    wait;
 		domain.scrape1page(doc);
 		updateStatusbar();
 		if (nextURL){
-			var wait = Math.max(0, 500 - (new Date() - start));
+			wait = Math.max(0, 500 - (new Date() - start));
 			window.setTimeout(retrieveAndProceed, wait, nextURL, scrape);
 		} else {
 			exportCSV();

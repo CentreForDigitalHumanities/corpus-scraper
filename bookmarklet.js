@@ -208,26 +208,22 @@
 		if (sanitized.match(csvSpecial)) return '"' + sanitized + '"';
 		return sanitized;
 	}
+	
+	function serialize(csvRow) {
+		if (csvRow.length !== domain.columns.length) {
+			console.log('Error: subarray of incorrect length.\n', csvRow);
+		}
+		return csvRow.map(sanitize).join(';');
+	}
 
 	/* Encode the extracted data as CSV and present it to the user. */
 	function exportCSV() {
 		console.log(data);
-		// step below removes mysterious undefined elements that
+		// filter below removes mysterious undefined elements that
 		// creep into the array
-		data = data.filter(function(elem) { return elem; });
-		var rows = [],
+		var rows = data.filter(function(elem) { return elem; }).map(serialize),
 		    $ = window.jQuery,
-		    body = $(document.body),
-		    aLength, l, i, a;
-		for (l = data.length, i = 0; i < l; ++i) {
-			a = data[i];
-			aLength = a.length;
-			if (aLength !== domain.columns.length) {
-				console.log('Error: subarray of incorrect length.\n', a);
-				continue;
-			}
-			rows.push(a.map(sanitize).join(';'));
-		}
+		    body = $(document.body);
 		body.empty().text(
 			'Scraping complete. Please copy the contents below ' +
 			'into a plaintext document and give it a .csv extension.'

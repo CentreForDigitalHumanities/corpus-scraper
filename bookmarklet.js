@@ -8,7 +8,7 @@
 	http://corpus.byu.edu/
 */
 
-(function ( ) {
+(function() {
 	'use strict';
 	
 	var target,          // frame or window containing first page of results
@@ -26,7 +26,7 @@
 				'number', 'century', 'text',
 				'contextLeft', 'sample', 'contextRight',
 			],
-			init: function ( ) {
+			init: function() {
 				target = frames[6];
 				this.rowsPerPage = frames[2].document.querySelector('#kh').value;
 				var navtable = target.document.querySelectorAll('#zabba table')[1];
@@ -35,7 +35,7 @@
 					progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
 				} else progressSteps = 1;
 			},
-			getNextURL: function (doc) {
+			getNextURL: function(doc) {
 				var navtable = doc.querySelectorAll('#zabba table')[1];
 				if (!navtable) return;
 				var navrow = navtable.querySelectorAll('td')[2],
@@ -46,7 +46,7 @@
 				}
 				// else return undefined
 			},
-			scrape1page: function (doc) {
+			scrape1page: function(doc) {
 				var row, anchors, field, fieldparts, fieldmiddle, rowdata;
 				for (var i = 1; i <= this.rowsPerPage; ++i) {
 					row = doc.querySelector('#t' + i);
@@ -75,12 +75,12 @@
 				'number', 'century', 'text',
 				'contextLeft', 'sample', 'contextRight',
 			],
-			init: function ( ) {
+			init: function() {
 				target = window;
 				var navnode = document.querySelector('td.texto[align="center"]');
 				progressSteps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]);
 			},
-			getNextURL: function (doc) {
+			getNextURL: function(doc) {
 				var anchor = doc.querySelector('td > a');
 				if (!anchor || anchor.textContent !== 'Siguiente') return;
 				return anchor.getAttribute('href');
@@ -131,7 +131,7 @@
 				columns.contextLeft[1] = range[0];
 				return columns;
 			},
-			scrape1page: function (doc) {
+			scrape1page: function(doc) {
 				var section = doc.querySelector('tt');
 				if (!section) {
 					console.log('Error: page', progress, 'does not contain data in the expected format.');
@@ -166,7 +166,7 @@
 	if (!domain) return;
 
 	/* Add jQuery to `window`. When ready, call `continuation`. */
-	function insertJQueryThen (continuation) {
+	function insertJQueryThen(continuation) {
 		var scriptnode = document.createElement('script');
 		scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
 		document.head.appendChild(scriptnode);
@@ -174,7 +174,7 @@
 	}
 	
 	/* Draw an empty status bar on `target.document`. */
-	function createStatusbar ( ) {
+	function createStatusbar() {
 		var statuswidget = document.createElement('div');
 		statuswidget.setAttribute('style', 'background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');
 		statuswidget.innerHTML = (
@@ -186,19 +186,19 @@
 	}
 	
 	/* Increment `progress` and fill the status bar accordingly. */
-	function updateStatusbar ( ) {
+	function updateStatusbar() {
 		var percentage = ++progress / progressSteps * 100;
 		target.document.querySelector('#progress-fill').style.width = percentage + '%';
 	}
 	
-	function retrieveAndProceed (href, continuation) {
-		window.jQuery.get(href, function (data) {
+	function retrieveAndProceed(href, continuation) {
+		window.jQuery.get(href, function(data) {
 			var docElem = parser.parseFromString(data, 'text/html');
 			continuation(docElem);
 		});
 	}
 	
-	function sanitize (csvValue) {
+	function sanitize(csvValue) {
 		if (typeof csvValue !== 'string') return csvValue;
 		var sanitized = csvValue.trim().split('"').join('""');
 		if (sanitized.match(csvSpecial)) return '"' + sanitized + '"';
@@ -206,11 +206,11 @@
 	}
 
 	/* Encode the extracted data as CSV and present it to the user. */
-	function exportCSV ( ) {
+	function exportCSV() {
 		console.log(data);
 		// step below removes mysterious undefined elements that
 		// creep into the array
-		data = data.filter(function (elem) { return elem; });
+		data = data.filter(function(elem) { return elem; });
 		var rows = [],
 		    aLength;
 		for (var l = data.length, i = 0; i < l; ++i) {
@@ -237,7 +237,7 @@
 		A "lazy loop": scrape pages until there are no more.
 		Looks like recursion but isn't, because of the JavaScript event model.
 	*/
-	function scrape (doc) {
+	function scrape(doc) {
 		console.log(doc);
 		var start = new Date(),
 		    nextURL = domain.getNextURL(doc);
@@ -253,5 +253,5 @@
 
 	domain.init();
 	createStatusbar();
-	insertJQueryThen(function ( ) { scrape(target.document); });
+	insertJQueryThen(function() { scrape(target.document); });
 }());

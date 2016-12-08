@@ -13,14 +13,19 @@
 	
 	var target,          // frame or window containing first page of results
 	    parser = new DOMParser(),
-	    data = [],       // will contain the extracted data in 6-tuples
+	    data = [],       // will contain the extracted data in subarrays
 	    progressSteps,   // number of requests to complete (including jQuery)
-	    progress = 0;    // number of requests completed so far
+	    progress = 0,    // number of requests completed so far
+	    csvSpecial = /[,; "'\t\n\r]/;  // used in sanitize()
 
 	// Produces an object with domain-specific code, if available.
 	// Refer to the Readme for a discussion of the purpose of each function.
 	var domains = {
 		'corpus.byu.edu': {
+			columns: [
+				'number', 'century', 'text',
+				'contextLeft', 'sample', 'contextRight',
+			],
 			init: function ( ) {
 				target = frames[6];
 				this.rowsPerPage = frames[2].document.querySelector('#kh').value;
@@ -66,6 +71,10 @@
 			}
 		},
 		'corpus.rae.es': {
+			columns: [
+				'number', 'century', 'text',
+				'contextLeft', 'sample', 'contextRight',
+			],
 			init: function ( ) {
 				target = window;
 				var navnode = document.querySelector('td.texto[align="center"]');
@@ -191,7 +200,9 @@
 	
 	function sanitize (csvValue) {
 		if (typeof csvValue !== 'string') return csvValue;
-		return csvValue.trim().split('"').join('""');
+		var sanitized = csvValue.trim().split('"').join('""');
+		if (sanitized.match(csvSpecial)) return '"' + sanitized + '"';
+		return sanitized;
 	}
 
 	/* Encode the extracted data as CSV and present it to the user. */
@@ -200,27 +211,23 @@
 		// step below removes mysterious undefined elements that
 		// creep into the array
 		data = data.filter(function (elem) { return elem; });
-		var text = '',
+		var rows = [],
 		    aLength;
 		for (var l = data.length, i = 0; i < l; ++i) {
 			var a = data[i];
 			aLength = a.length;
-			if (aLength !== 6) {
+			if (aLength !== domain.columns.length) {
 				console.log('Error: subarray of incorrect length.\n', a);
 				continue;
 			}
-			text += sanitize(a[0]) + ';' + sanitize(a[1]);
-			for (var j = 2; j < aLength; ++j) {
-				text += ';"' + sanitize(a[j]) + '"';
-			}
-			text += '\n';
+			rows.push(a.map(sanitize).join(';'));
 		}
 		document.write(
 			'Scraping complete. Please copy the contents below ' +
 			'into a plaintext document and give it a .csv extension.<br>' +
 			'<textarea id="output" style="width: 50ex; height: 10em;">' +
-			'number;century;text;contextLeft;sample;contextRight\n' +
-			text +
+			domain.columns.join(';') + '\n' +
+			rows.join('\n') +
 			'</textarea>'
 		);
 		window.jQuery('#output').focus().select();

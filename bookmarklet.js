@@ -86,6 +86,22 @@
 				if (!anchor || anchor.textContent !== 'Siguiente') return;
 				return anchor.getAttribute('href');
 			},
+			translateHeader: function(columnHeader) {
+				switch (columnHeader) {
+				// \xBA might be replaced by \ufffd on encoding mismatch.
+				case 'N\ufffd':
+				case 'N\xBA':
+					return 'number';
+				case 'A\xD1O':
+					return 'date';
+				case 'T\xCDTULO':
+					return 'text';
+				case 'CONCORDANCIA':
+					return 'contextLeft';
+				default:
+					return null;
+				}
+			},
 			columnPositions: function(section, titleLine) {
 				var firstMatch = section.innerHTML.split('\n')[1],
 				    columnHeads = titleLine.split(/(\s+)/),
@@ -96,24 +112,7 @@
 				    index = 0,
 				    l, i;
 				for (l = columnHeads.length, i = 0; i < l; i += 2) {
-					switch (columnHeads[i]) {
-					// \xBA might be replaced by \ufffd on encoding mismatch.
-					case 'N\ufffd':
-					case 'N\xBA':
-						currentHeader = 'number';
-						break;
-					case 'A\xD1O':
-						currentHeader = 'date';
-						break;
-					case 'T\xCDTULO':
-						currentHeader = 'text';
-						break;
-					case 'CONCORDANCIA':
-						currentHeader = 'contextLeft';
-						break;
-					default:
-						currentHeader = null;
-					}
+					currentHeader = this.translateHeader(columnHeads[i]);
 					range = [index];
 					index += columnHeads[i].length;
 					if (i + 1 < l) index += columnHeads[i + 1].length;
@@ -133,6 +132,18 @@
 				columns.contextLeft[1] = range[0];
 				return columns;
 			},
+			// bind scrape1line to an object with `.columns` and `.minLength`
+			scrape1line: function(line) {
+				if (line.length < this.minLength) return;
+				data.push([
+					line.slice.apply(line, this.columns.number),
+					line.slice.apply(line, this.columns.date),
+					line.slice.apply(line, this.columns.text),
+					line.slice.apply(line, this.columns.contextLeft),
+					line.slice.apply(line, this.columns.sample),
+					line.slice.apply(line, this.columns.contextRight),
+				]);
+			},
 			scrape1page: function(doc) {
 				var section = doc.querySelector('tt');
 				if (!section) {
@@ -140,23 +151,13 @@
 					return;
 				}
 				var lines = section.textContent.split('\n'),
-				    columns = this.columnPositions(section, lines[0]),
-				    minLength = columns.text[1],
-				    line, rowdata, l, i;
-				for (l = lines.length, i = 1; i < l; ++i) {
-					line = lines[i];
-					if (line.length < minLength) continue;
-					rowdata = [
-						line.slice.apply(line, columns.number),
-						line.slice.apply(line, columns.date),
-						line.slice.apply(line, columns.text),
-						line.slice.apply(line, columns.contextLeft),
-						line.slice.apply(line, columns.sample),
-						line.slice.apply(line, columns.contextRight),
-					];
-					data.push(rowdata);
-				}
-			}
+				    firstLine = lines.shift(),
+				    columns = this.columnPositions(section, firstLine);
+				lines.forEach(this.scrape1line, {
+					columns: columns,
+					minLength: columns.text[1],
+				});
+			},
 		}
 	};
 	domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];

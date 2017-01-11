@@ -132,6 +132,18 @@
 				columns.contextLeft[1] = range[0];
 				return columns;
 			},
+			// bind scrape1line to an object with `.columns` and `.minLength`
+			scrape1line: function(line) {
+				if (line.length < this.minLength) return;
+				data.push([
+					line.slice.apply(line, this.columns.number),
+					line.slice.apply(line, this.columns.date),
+					line.slice.apply(line, this.columns.text),
+					line.slice.apply(line, this.columns.contextLeft),
+					line.slice.apply(line, this.columns.sample),
+					line.slice.apply(line, this.columns.contextRight),
+				]);
+			},
 			scrape1page: function(doc) {
 				var section = doc.querySelector('tt');
 				if (!section) {
@@ -139,23 +151,13 @@
 					return;
 				}
 				var lines = section.textContent.split('\n'),
-				    columns = this.columnPositions(section, lines[0]),
-				    minLength = columns.text[1],
-				    line, rowdata, l, i;
-				for (l = lines.length, i = 1; i < l; ++i) {
-					line = lines[i];
-					if (line.length < minLength) continue;
-					rowdata = [
-						line.slice.apply(line, columns.number),
-						line.slice.apply(line, columns.date),
-						line.slice.apply(line, columns.text),
-						line.slice.apply(line, columns.contextLeft),
-						line.slice.apply(line, columns.sample),
-						line.slice.apply(line, columns.contextRight),
-					];
-					data.push(rowdata);
-				}
-			}
+				    firstLine = lines.shift(),
+				    columns = this.columnPositions(section, firstLine);
+				lines.forEach(this.scrape1line, {
+					columns: columns,
+					minLength: columns.text[1],
+				});
+			},
 		}
 	};
 	domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];

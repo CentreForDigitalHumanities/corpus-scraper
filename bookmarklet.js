@@ -6,6 +6,9 @@
 	http://corpus.rae.es/cordenet.html
 	http://corpus.rae.es/creanet.html
 	http://corpus.byu.edu/
+	http://web.frl.es/CORPES/view/inicioExterno.view
+	http://web.frl.es/CREA/view/inicioExterno.view
+	http://web.frl.es/CNDHE/view/inicioExterno.view
 */
 
 (function() {
@@ -158,7 +161,25 @@
 					minLength: columns.text[1],
 				});
 			},
-		}
+		},
+		'web.frl.es': {
+			columns: [
+				'number', 'date', 'source', 'nationality',
+				'contextLeft', 'sample', 'contextRight', 'analysis',
+			],
+			init: function() {
+				var stepNode = document.querySelector('#jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:htmlOutputText49');
+				if (stepNode) {
+					progressSteps = Number(stepNode.textContent);
+				} else {
+					progressSteps = 1;
+				}
+				target = window;
+			},
+			getNextUrl: function(doc) {
+				
+			}
+		},
 	};
 	domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];
 	domains['www.corpusdoportugues.org'] = domains['corpus.byu.edu'];

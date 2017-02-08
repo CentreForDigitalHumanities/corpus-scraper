@@ -38,7 +38,7 @@
 					progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
 				} else progressSteps = 1;
 			},
-			getNextURL: function(doc) {
+			getNext: function(doc) {
 				var navtable = doc.querySelectorAll('#zabba table')[1];
 				if (!navtable) return;
 				var navrow = navtable.querySelectorAll('td')[2],
@@ -84,7 +84,7 @@
 				var navnode = document.querySelector('td.texto[align="center"]');
 				progressSteps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]);
 			},
-			getNextURL: function(doc) {
+			getNext: function(doc) {
 				var anchor = doc.querySelector('td > a');
 				if (!anchor || anchor.textContent !== 'Siguiente') return;
 				return anchor.getAttribute('href');
@@ -176,7 +176,7 @@
 				}
 				target = window;
 			},
-			getNextUrl: function(doc) {
+			getNext: function(doc) {
 				
 			}
 		},
@@ -263,14 +263,19 @@
 	function scrape(doc) {
 		console.log(doc);
 		var start = new Date(),
-		    nextURL = domain.getNextURL(doc),
+		    next = domain.getNext(doc),
 		    wait;
 		domain.scrape1page(doc);
 		updateStatusbar();
-		if (nextURL){
-			wait = Math.max(0, 500 - (new Date() - start));
-			window.setTimeout(retrieveAndProceed, wait, nextURL, scrape);
-		} else {
+		wait = Math.max(0, 500 - (new Date() - start));
+		switch (typeof next) {
+		case 'string':
+			window.setTimeout(retrieveAndProceed, wait, next, scrape);
+			break;
+		case 'function':
+			window.setTimeout(next, wait, scrape);
+			break;
+		default:
 			exportCSV();
 		}
 	}

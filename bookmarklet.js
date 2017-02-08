@@ -168,17 +168,29 @@
 				'contextLeft', 'sample', 'contextRight', 'analysis',
 			],
 			init: function() {
-				var stepNode = document.querySelector('#jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:htmlOutputText49');
+				var stepNode = document.getElementById('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:htmlOutputText49');
 				if (stepNode) {
 					progressSteps = Number(stepNode.textContent);
 				} else {
 					progressSteps = 1;
 				}
 				target = window;
+				this.pagingObject = CAF.model('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:comandoAlante');
+				this.pagingEventName = 'CAF.Command.actionCompleteListener.#' + this.pagingObject.id;
 			},
-			getNext: function(doc) {
-				
-			}
+			fetchNextPage: function(callback) {
+				var self = this;
+				var handler = function() {
+					Event.Custom.removeListener(self.pagingEventName, handler);
+					callback(document);
+				};
+				Event.Custom.addListener(self.pagingEventName, handler);
+				self.pagingObject.element.setAttribute('caf:async', true);
+				self.pagingObject.go();
+			},
+			getNext: function() {
+				return this.fetchNextPage.bind(this);
+			},
 		},
 	};
 	domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];

@@ -164,8 +164,8 @@
 		},
 		'web.frl.es': {
 			columns: [
-				'number', 'date', 'source', 'nationality',
-				'contextLeft', 'sample', 'contextRight', 'analysis',
+				'number', 'date', 'source', 'author', 'published', 'country',
+				'contextLeft', 'sample', 'contextRight', 'sampleAnalysis',
 			],
 			init: function() {
 				var stepNode = document.getElementById('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:htmlOutputText49');
@@ -190,6 +190,41 @@
 			},
 			getNext: function() {
 				return this.fetchNextPage.bind(this);
+			},
+			scrape1row: function(row) {
+				console.log('scrape1row', row);
+				console.log(row.childNodes);
+				console.log(row.childElements);
+				console.log(row.childElements().length);
+				console.log(row.childElements().item);
+				var cells = row.childNodes,
+				    number = cells[0].textContent,
+				    meta = cells[1].querySelectorAll('.datos_cabecera'),
+				    date = meta[0].textContent,
+				    source = meta[2].textContent,
+				    author = meta[1].textContent,
+				    published = meta[4].textContent.replace(/\[|\]/g, ''),
+				    country = meta[3].textContent.replace(/\[|\]/g, ''),
+				    content = cells[3].querySelectorAll('div span span'),
+				    contextLeft = content[1].textContent,
+				    sample = content[2].textContent,
+				    contextRight = content[3].textContent,
+				    sampleAnalysis = content[0].textContent;
+				return [
+					number, date, source, author, published, country,
+					contextLeft, sample, contextRight, sampleAnalysis,
+				];
+			},
+			scrape1page: function(doc) {
+				var rows = doc.getElementById(
+				    	'jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable'
+				    ).querySelectorAll('.caf-primary-row'),
+				    l, i,
+				    data = [];
+				for (l = rows.length, i = 0; i < l; ++i) {
+					data.push(this.scrape1row(rows[i]));
+				}
+				return data;
 			},
 		},
 	};

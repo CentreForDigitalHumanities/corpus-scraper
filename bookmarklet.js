@@ -1,5 +1,5 @@
 /*
-	(c) 2014, 2016 Digital Humanities Lab, Utrecht University
+	(c) 2014, 2016, 2017 Digital Humanities Lab, Utrecht University
 	Author: Julian Gonggrijp, j.gonggrijp@uu.nl
 	
 	Automated word-in-context scraper for text corpora:
@@ -179,9 +179,11 @@
 				this.pagingEventName = 'CAF.Command.actionCompleteListener.#' + this.pagingObject.id;
 			},
 			fetchNextPage: function(callback) {
+				console.log('fetchNextPage', callback, this.pagingObject);
 				var self = this;
 				var handler = function() {
 					Event.Custom.removeListener(self.pagingEventName, handler);
+					console.log('handling CAF actionComplete');
 					callback(document);
 				};
 				Event.Custom.addListener(self.pagingEventName, handler);
@@ -192,11 +194,11 @@
 				return this.fetchNextPage.bind(this);
 			},
 			scrape1row: function(row) {
-				console.log('scrape1row', row);
-				console.log(row.childNodes);
-				console.log(row.childElements);
-				console.log(row.childElements().length);
-				console.log(row.childElements().item);
+				// console.log('scrape1row', row);
+				// console.log(row.childNodes);
+				// console.log(row.childElements);
+				// console.log(row.childElements().length);
+				// console.log(row.childElements().item);
 				var cells = row.childNodes,
 				    number = cells[0].textContent,
 				    meta = cells[1].querySelectorAll('.datos_cabecera'),
@@ -224,6 +226,7 @@
 				for (l = rows.length, i = 0; i < l; ++i) {
 					data.push(this.scrape1row(rows[i]));
 				}
+				console.log('scrape1page', data);
 				return data;
 			},
 		},
@@ -238,10 +241,14 @@
 
 	/* Add jQuery to `window`. When ready, call `continuation`. */
 	function insertJQueryThen(continuation) {
+		if (window.jQuery) return continuation();
 		var scriptnode = document.createElement('script');
 		scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
 		document.head.appendChild(scriptnode);
-		scriptnode.addEventListener('load', continuation);
+		scriptnode.addEventListener('load', function() {
+			jQuery.noConflict();  // In case the `$` variable is already used
+			continuation();
+		});
 	}
 	
 	/* Draw an empty status bar on `target.document`. */

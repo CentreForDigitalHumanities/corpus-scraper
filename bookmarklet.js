@@ -191,6 +191,12 @@
 				self.pagingObject.go();
 			},
 			getNext: function() {
+				var currentPageNode = document.getElementById('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:htmlOutputText4');
+				console.log('getNext', progressSteps, Number(currentPageNode.textContent));
+				if (
+					progressSteps === 1 ||
+					progressSteps === Number(currentPageNode.textContent)
+				) return;
 				return this.fetchNextPage.bind(this);
 			},
 			scrape1row: function(row) {

@@ -227,13 +227,10 @@
 				var rows = doc.getElementById(
 				    	'jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable'
 				    ).querySelectorAll('.caf-primary-row'),
-				    l, i,
-				    data = [];
+				    l, i;
 				for (l = rows.length, i = 0; i < l; ++i) {
 					data.push(this.scrape1row(rows[i]));
 				}
-				console.log('scrape1page', data);
-				return data;
 			},
 		},
 	};

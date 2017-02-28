@@ -30,16 +30,16 @@
 				'contextLeft', 'sample', 'contextRight',
 			],
 			init: function() {
-				target = frames[6];
+				target = frames[4];
 				this.rowsPerPage = frames[2].document.querySelector('#kh').value;
-				var navtable = target.document.querySelectorAll('#zabba table')[1];
+				var navtable = target.document.querySelectorAll('#zabba table')[2];
 				if (navtable) {
 					var navrow = navtable.querySelectorAll('td')[2];
 					progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
 				} else progressSteps = 1;
 			},
 			getNext: function(doc) {
-				var navtable = doc.querySelectorAll('#zabba table')[1];
+				var navtable = doc.querySelectorAll('#zabba table')[2];
 				if (!navtable) return;
 				var navrow = navtable.querySelectorAll('td')[2],
 				    anchor = navrow.querySelectorAll('a')[2],
@@ -50,27 +50,20 @@
 				// else return undefined
 			},
 			scrape1page: function(doc) {
-				var row, anchors, field, fieldparts, fieldmiddle, rowdata,
-				    i, j, l;
+				var columns = doc.querySelectorAll('#t1 td').length,
+				    row, cells, i;
 				for (i = 1; i <= this.rowsPerPage; ++i) {
 					row = doc.querySelector('#t' + i);
 					if (!row) continue;
-					anchors = row.querySelectorAll('a');
-					field = row.querySelector('#texto_' + i);
-					rowdata = [];
-					if (!anchors || !field || !field.value) continue;
-					for (j = 0; j < 3; ++j) {
-						rowdata.push(anchors[j].childNodes[0].nodeValue);
-					}
-					fieldparts = field.value.split(/<b><u>|<\/u><\/b>/);
-					fieldmiddle = [];
-					for (l = fieldparts.length, j = 1; j < l - 1; ++j) {
-						fieldmiddle.push(fieldparts[j]);
-					}
-					rowdata.push(   fieldparts[0],
-					                fieldmiddle.join(''),
-					                fieldparts[j]           );
-					data.push(rowdata);
+					cells = row.querySelectorAll('td');
+					data.push([
+						cells[0].textContent,
+						cells[1].textContent,
+						cells[2].textContent,
+						cells[columns - 3].textContent,
+						cells[columns - 2].textContent,
+						cells[columns - 1].textContent,
+					]);
 				}
 			}
 		},
@@ -325,7 +318,7 @@
 		// creep into the array
 		var rows = data.filter(function(elem) { return elem; }).map(serialize),
 		    $ = window.jQuery,
-		    body = $(document.body);
+		    body = $(target.document.body);
 		body.empty().text(
 			'Scraping complete. Please copy the contents below ' +
 			'into a plaintext document and give it a .csv extension.'

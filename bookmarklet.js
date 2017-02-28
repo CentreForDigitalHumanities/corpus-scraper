@@ -26,7 +26,7 @@
 	var domains = {
 		'corpus.byu.edu': {
 			columns: [
-				'number', 'century', 'text',
+				'number', 'meta1', 'meta2',
 				'contextLeft', 'sample', 'contextRight',
 			],
 			init: function() {

@@ -177,6 +177,8 @@
 				target = window;
 				this.pagingObject = CAF.model('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:comandoAlante');
 				this.pagingEventName = 'CAF.Command.actionCompleteListener.#' + this.pagingObject.id;
+				this.CREA = this.CORPES;
+				this.scrapeRowMeta = this[location.pathname.split('/')[1]];
 			},
 			fetchNextPage: function(callback) {
 				console.log('fetchNextPage', callback, this.pagingObject);
@@ -199,24 +201,50 @@
 				) return;
 				return this.fetchNextPage.bind(this);
 			},
+			CORPES: function(rowID) {
+				var date = document.getElementById(rowID + ':htmlOutputText15'),
+				    source = document.getElementById(rowID + ':tituloPrincipal'),
+				    author = document.getElementById(rowID + ':autorPrincipal'),
+				    lugarEdicion = document.getElementById(rowID + ':lugarEdicion'),
+				    editorial = document.getElementById(rowID + ':editorial'),
+				    fechaPublicacion = document.getElementById(rowID + ':fechaPublicacion'),
+				    published,
+				    country = document.getElementById(rowID + ':htmlOutputText19');
+				date = date ? date.textContent : '';
+				source = source ? source.textContent : '';
+				author = author ? author.textContent : '';
+				lugarEdicion = lugarEdicion ? lugarEdicion.textContent : '';
+				editorial = editorial ? editorial.textContent : '';
+				fechaPublicacion = fechaPublicacion ? fechaPublicacion.textContent : '';
+				published = lugarEdicion + editorial + fechaPublicacion;
+				country = country ? country.textContent : '';
+				return [date, source, author, published, country];
+			},
+			CNDHE: function(rowID) {
+				var date = document.getElementById(rowID + ':htmlOutputText15'),
+				    source = document.getElementById(rowID + ':htmlOutputText591'),
+				    author = document.getElementById(rowID + ':htmlOutputText561'),
+				    published = document.getElementById(rowID + ':htmlOutputText651'),
+				    country = document.getElementById(rowID + ':htmlOutputText19');
+				date = date ? date.textContent : '';
+				source = source ? source.textContent : '';
+				author = author ? author.textContent : '';
+				published = published ? published.textContent.replace(/\[|\]/g, '') : '';
+				country = country ? country.textContent : '';
+				return [date, source, author, published, country];
+			},
 			scrape1row: function(row) {
 				var cells = row.childNodes,
 				    number = cells[0].textContent,
-				    meta = cells[1].querySelectorAll('.datos_cabecera'),
-				    date = meta[0].textContent,
-				    source = meta[2].textContent,
-				    author = meta[1].textContent,
-				    published = meta[4].textContent.replace(/\[|\]/g, ''),
-				    country = meta[3].textContent.replace(/\[|\]/g, ''),
 				    content = cells[3].querySelectorAll('div span'),
 				    contextLeft = content[4].textContent,
 				    sample = content[5].textContent,
 				    contextRight = content[6].textContent,
 				    sampleAnalysis = content[2].textContent.split('-')[1];
-				return [
-					number, date, source, author, published, country,
-					contextLeft, sample, contextRight, sampleAnalysis,
-				];
+				return [number].concat(
+					this.scrapeRowMeta(row.id),
+					contextLeft, sample, contextRight, sampleAnalysis
+				);
 			},
 			scrape1page: function(doc) {
 				var rows = doc.getElementById(

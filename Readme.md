@@ -7,7 +7,7 @@ By Digital Humanities Lab, Utrecht University
 Motivation
 ----------
 
-Some online text corpora, such as Corpus del Español, do not offer a button to download your search results in a practical format, effectively expecting you to copy, paste and edit the data manually page by page. CorpusScraper is a bookmarklet that automates that work for you, so saving your search results becomes nearly as easy as if there would be such a button.
+Some online text concordance corpora, such as Corpus del Español, do not offer a button to download your search results in a practical format, effectively expecting you to copy, paste and edit the data manually page by page. CorpusScraper is a bookmarklet that automates that work for you, so saving your search results becomes nearly as easy as if there would be such a button.
 
 See `CorpusScraper.html` for a full explanation of the usage.
 
@@ -17,7 +17,7 @@ What’s included
 
 The bookmarklet is written for Chrome and appears to work in Safari and Firefox as well. Internet Explorer seems not to work for most corpora, but your mileage may vary (either way, you should have at least version 9 installed). 
 
-Currently, the script can scrape data from [all byu.edu corpuses](http://corpus.byu.edu/) and from Real Academia Española ([CREA](http://corpus.rae.es/creanet.html)/[CORDE](http://corpus.rae.es/cordenet.html)). It is written such that you can add your own implementations for other online word-in-context corpora.
+Currently, the script can scrape data from [all byu.edu corpora](http://corpus.byu.edu/) and from Real Academia Española ([CREA](http://corpus.rae.es/creanet.html)/[CORDE](http://corpus.rae.es/cordenet.html)). As of the upcoming version, corpora from the Fundación Rafael Lapesa are supported as well ([CORPES](http://web.frl.es/CORPES/view/inicioExterno.view), [CREA](http://web.frl.es/CREA/view/inicioExterno.view), [CNDHE](http://web.frl.es/CNDHE/view/inicioExterno.view)). It is written such that you can add your own implementations for other online concordance corpora.
 
 
 How to complete the installer
@@ -47,7 +47,11 @@ add such a key-value pair for each domain that you want to add support for, usin
 
     domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];
 
-At the very least, the value part should contain the following three member functions:
+At the very least, the value part should contain the following four members:
+
+    columns: [...]
+
+> An array of strings, representing the names of the columns that will be extracted. This is considered a promise. Every data row that your domain implementation outputs, should have the same length as this array and contain the corresponding fields in the same order.
 
     init: function ( ) {...}
 
@@ -60,6 +64,6 @@ At the very least, the value part should contain the following three member func
 
     scrape1page: function (doc) {...}
 
-> Extracts the data from the page represented by `doc` (again a Document object) and appends those data in 6-tuples to the top-level `data` array. Take note that those 6-tuples should be arrays given in the order [record number, century, source text title, left context, word match, right context].
+> Extracts the data from the page represented by `doc` (again a Document object) and appends those data to the top-level `data` array, one nested array per row (so `data` becomes an array of arrays of strings or numbers). Note that each row should contain the same number of fields in the same order as described in your `columns` member.
 
 Please take note that your custom domain implementation should only use the `target`, `data` and `progressSteps` identifiers from the top-level function. Do not use `window.document` or `window.jQuery`, because that will probably not work out as you expect. You can however use `doc.querySelector` and `doc.querySelectorAll` instead. See http://www.w3.org/TR/selectors-api/ for a specification of these selectors. 

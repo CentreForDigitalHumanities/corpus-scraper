@@ -200,11 +200,6 @@
 				return this.fetchNextPage.bind(this);
 			},
 			scrape1row: function(row) {
-				// console.log('scrape1row', row);
-				// console.log(row.childNodes);
-				// console.log(row.childElements);
-				// console.log(row.childElements().length);
-				// console.log(row.childElements().item);
 				var cells = row.childNodes,
 				    number = cells[0].textContent,
 				    meta = cells[1].querySelectorAll('.datos_cabecera'),

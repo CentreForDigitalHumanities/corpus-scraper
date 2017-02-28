@@ -1,11 +1,14 @@
 /*
-	(c) 2014, 2016 Digital Humanities Lab, Utrecht University
+	(c) 2014, 2016, 2017 Digital Humanities Lab, Utrecht University
 	Author: Julian Gonggrijp, j.gonggrijp@uu.nl
 	
 	Automated word-in-context scraper for text corpora:
 	http://corpus.rae.es/cordenet.html
 	http://corpus.rae.es/creanet.html
 	http://corpus.byu.edu/
+	http://web.frl.es/CORPES/view/inicioExterno.view
+	http://web.frl.es/CREA/view/inicioExterno.view
+	http://web.frl.es/CNDHE/view/inicioExterno.view
 */
 
 (function() {
@@ -35,7 +38,7 @@
 					progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
 				} else progressSteps = 1;
 			},
-			getNextURL: function(doc) {
+			getNext: function(doc) {
 				var navtable = doc.querySelectorAll('#zabba table')[1];
 				if (!navtable) return;
 				var navrow = navtable.querySelectorAll('td')[2],
@@ -81,7 +84,7 @@
 				var navnode = document.querySelector('td.texto[align="center"]');
 				progressSteps = Number(navnode.textContent.split(/[^0,1-9]+/)[2]);
 			},
-			getNextURL: function(doc) {
+			getNext: function(doc) {
 				var anchor = doc.querySelector('td > a');
 				if (!anchor || anchor.textContent !== 'Siguiente') return;
 				return anchor.getAttribute('href');
@@ -158,7 +161,73 @@
 					minLength: columns.text[1],
 				});
 			},
-		}
+		},
+		'web.frl.es': {
+			columns: [
+				'number', 'date', 'source', 'author', 'published', 'country',
+				'contextLeft', 'sample', 'contextRight', 'sampleAnalysis',
+			],
+			init: function() {
+				var stepNode = document.getElementById('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:htmlOutputText49');
+				if (stepNode) {
+					progressSteps = Number(stepNode.textContent);
+				} else {
+					progressSteps = 1;
+				}
+				target = window;
+				this.pagingObject = CAF.model('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:comandoAlante');
+				this.pagingEventName = 'CAF.Command.actionCompleteListener.#' + this.pagingObject.id;
+			},
+			fetchNextPage: function(callback) {
+				console.log('fetchNextPage', callback, this.pagingObject);
+				var self = this;
+				var handler = function() {
+					Event.Custom.removeListener(self.pagingEventName, handler);
+					console.log('handling CAF actionComplete');
+					callback(document);
+				};
+				Event.Custom.addListener(self.pagingEventName, handler);
+				self.pagingObject.element.setAttribute('caf:async', true);
+				self.pagingObject.go();
+			},
+			getNext: function() {
+				var currentPageNode = document.getElementById('jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable:htmlOutputText4');
+				console.log('getNext', progressSteps, Number(currentPageNode.textContent));
+				if (
+					progressSteps === 1 ||
+					progressSteps === Number(currentPageNode.textContent)
+				) return;
+				return this.fetchNextPage.bind(this);
+			},
+			scrape1row: function(row) {
+				var cells = row.childNodes,
+				    number = cells[0].textContent,
+				    meta = cells[1].querySelectorAll('.datos_cabecera'),
+				    date = meta[0].textContent,
+				    source = meta[2].textContent,
+				    author = meta[1].textContent,
+				    published = meta[4].textContent.replace(/\[|\]/g, ''),
+				    country = meta[3].textContent.replace(/\[|\]/g, ''),
+				    content = cells[3].querySelectorAll('div span'),
+				    contextLeft = content[4].textContent,
+				    sample = content[5].textContent,
+				    contextRight = content[6].textContent,
+				    sampleAnalysis = content[2].textContent.split('-')[1];
+				return [
+					number, date, source, author, published, country,
+					contextLeft, sample, contextRight, sampleAnalysis,
+				];
+			},
+			scrape1page: function(doc) {
+				var rows = doc.getElementById(
+				    	'jsf:import:CNDHEForm:importResultadoConcorView:CNDHEForm:selecTable'
+				    ).querySelectorAll('.caf-primary-row'),
+				    l, i;
+				for (l = rows.length, i = 0; i < l; ++i) {
+					data.push(this.scrape1row(rows[i]));
+				}
+			},
+		},
 	};
 	domains['www.corpusdelespanol.org'] = domains['corpus.byu.edu'];
 	domains['www.corpusdoportugues.org'] = domains['corpus.byu.edu'];
@@ -170,10 +239,14 @@
 
 	/* Add jQuery to `window`. When ready, call `continuation`. */
 	function insertJQueryThen(continuation) {
+		if (window.jQuery) return continuation();
 		var scriptnode = document.createElement('script');
 		scriptnode.setAttribute('src', '//code.jquery.com/jquery-2.1.1.min.js');
 		document.head.appendChild(scriptnode);
-		scriptnode.addEventListener('load', continuation);
+		scriptnode.addEventListener('load', function() {
+			jQuery.noConflict();  // In case the `$` variable is already used
+			continuation();
+		});
 	}
 	
 	/* Draw an empty status bar on `target.document`. */
@@ -242,14 +315,19 @@
 	function scrape(doc) {
 		console.log(doc);
 		var start = new Date(),
-		    nextURL = domain.getNextURL(doc),
+		    next = domain.getNext(doc),
 		    wait;
 		domain.scrape1page(doc);
 		updateStatusbar();
-		if (nextURL){
-			wait = Math.max(0, 500 - (new Date() - start));
-			window.setTimeout(retrieveAndProceed, wait, nextURL, scrape);
-		} else {
+		wait = Math.max(0, 500 - (new Date() - start));
+		switch (typeof next) {
+		case 'string':
+			window.setTimeout(retrieveAndProceed, wait, next, scrape);
+			break;
+		case 'function':
+			window.setTimeout(next, wait, scrape);
+			break;
+		default:
 			exportCSV();
 		}
 	}

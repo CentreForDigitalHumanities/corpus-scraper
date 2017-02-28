@@ -53,9 +53,10 @@ At the very least, the value part should contain the following three member func
 
 > Initializes the `target` and `progressSteps` top-level variables. `target` must be set to the innermost frame or window that contains the first page of data, while `progressSteps` should be set to the number of pages to extract from. Make sure to have a special case for when there is only a single page of results with no navigation available (see the Corpus del Español example). 
 
-    getNextURL: function (doc) {...}
+    getNext: function (doc) {...}
 
-> Localizes the URL to the next page in `doc`, which is a Document object. If there is no next page it returns `undefined`, otherwise it returns the URL. Note that you cannot return the URL simply as `anchor.href`, because Chrome does not add the `href` property to anchor elements when the containing document is parsed in the background without rendering it. Instead, you should return `anchor.getAttribute('href')`.
+> Returns either the URL to the next page in `doc`, which is a Document object, or a function which accepts a callback, fetches the next document and finally calls the callback with the next document. If there is no next page it returns `undefined`.
+> Note that you cannot return the URL simply as `anchor.href`, because Chrome does not add the `href` property to anchor elements when the containing document is parsed in the background without rendering it. Instead, you should return `anchor.getAttribute('href')`.
 
     scrape1page: function (doc) {...}
 

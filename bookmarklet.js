@@ -213,11 +213,11 @@
 				    author = meta[1].textContent,
 				    published = meta[4].textContent.replace(/\[|\]/g, ''),
 				    country = meta[3].textContent.replace(/\[|\]/g, ''),
-				    content = cells[3].querySelectorAll('div span span'),
-				    contextLeft = content[1].textContent,
-				    sample = content[2].textContent,
-				    contextRight = content[3].textContent,
-				    sampleAnalysis = content[0].textContent;
+				    content = cells[3].querySelectorAll('div span'),
+				    contextLeft = content[4].textContent,
+				    sample = content[5].textContent,
+				    contextRight = content[6].textContent,
+				    sampleAnalysis = content[2].textContent.split('-')[1];
 				return [
 					number, date, source, author, published, country,
 					contextLeft, sample, contextRight, sampleAnalysis,

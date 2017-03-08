@@ -29,22 +29,26 @@
 				'number', 'meta1', 'meta2',
 				'contextLeft', 'sample', 'contextRight',
 			],
+			progressRegex: /(\d+)\s*\/\s*(\d+)/,
 			init: function() {
 				target = frames[4];
 				this.rowsPerPage = frames[2].document.querySelector('#kh').value;
-				var navtable = target.document.querySelectorAll('#zabba table')[2];
-				if (navtable) {
-					var navrow = navtable.querySelectorAll('td')[2];
-					progressSteps = Number(navrow.childNodes[4].nodeValue.split('/')[1]);
+				var navtable = target.document.querySelector('#resort td'),
+				    progress;
+				if (navtable && (progress = navtable.textContent.match(
+					this.progressRegex
+				))) {
+					progressSteps = Number(progress[2]);
 				} else progressSteps = 1;
 			},
 			getNext: function(doc) {
-				var navtable = doc.querySelectorAll('#zabba table')[2];
-				if (!navtable) return;
-				var navrow = navtable.querySelectorAll('td')[2],
-				    anchor = navrow.querySelectorAll('a')[2],
-				    currentState = navrow.childNodes[4].nodeValue.split('/');
-				if (anchor && Number(currentState[0]) < Number(currentState[1])) {
+				var navtable = doc.querySelector('#resort td'),
+				    progress;
+				if (!navtable || !(progress = navtable.textContent.match(
+					this.progressRegex
+				))) return;
+				var anchor = navtable.querySelectorAll('a')[4];
+				if (anchor && Number(progress[1]) < Number(progress[2])) {
 					return anchor.getAttribute('href');
 				}
 				// else return undefined

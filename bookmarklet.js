@@ -30,16 +30,22 @@
 				'contextLeft', 'sample', 'contextRight',
 			],
 			progressRegex: /(\d+)\s*\/\s*(\d+)/,
+			getProgress: function(doc) {
+				this.navtable = doc.querySelector('#resort td');
+				console.log('getProgress', this.navtable);
+				var progress = {current: 1, total: 1},
+				    match;
+				if (!this.navtable) return progress;
+				match = this.navtable.textContent.match(this.progressRegex);
+				if (!match) return progress;
+				progress.current = Number(match[1]);
+				progress.total = Number(match[2]);
+				return progress;
+			},
 			init: function() {
 				target = frames[4];
+				progressSteps = this.getProgress(target.document).total;
 				this.rowsPerPage = frames[2].document.querySelector('#kh').value;
-				var navtable = target.document.querySelector('#resort td'),
-				    progress;
-				if (navtable && (progress = navtable.textContent.match(
-					this.progressRegex
-				))) {
-					progressSteps = Number(progress[2]);
-				} else progressSteps = 1;
 				// Detect what type of concordance display we are dealing with.
 				var labelKWIC = frames[2].document.querySelector('#label5'),
 				    labelBorder = labelKWIC.style.borderWidth;
@@ -51,13 +57,10 @@
 				}
 			},
 			getNext: function(doc) {
-				var navtable = doc.querySelector('#resort td'),
-				    progress;
-				if (!navtable || !(progress = navtable.textContent.match(
-					this.progressRegex
-				))) return;
-				var anchor = navtable.querySelectorAll('a')[4];
-				if (anchor && Number(progress[1]) < Number(progress[2])) {
+				var progress = this.getProgress(doc),
+				    anchor = this.navtable.querySelectorAll('a')[4];
+				console.log('getNext', progress, anchor);
+				if (anchor && progress.current < progress.total) {
 					return anchor.getAttribute('href');
 				}
 				// else return undefined

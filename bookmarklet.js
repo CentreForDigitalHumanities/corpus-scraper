@@ -42,6 +42,16 @@
 				progress.total = Number(match[2]);
 				return progress;
 			},
+			generateDecodeEntities: function() {
+				var arena = frames[2].document.createElement('p');
+				this.decodeEntities = function(text) {
+					arena.innerHTML = text;
+					var result = arena.textContent;
+					arena.innerHTML = '';
+					console.log('decodeEntities', text, result);
+					return result;
+				};
+			},
 			init: function() {
 				target = frames[4];
 				progressSteps = this.getProgress(target.document).total;
@@ -55,6 +65,7 @@
 				} else {
 					this.scrapeConcordance = this.concordanceFromList;
 				}
+				this.generateDecodeEntities();
 			},
 			getNext: function(doc) {
 				var progress = this.getProgress(doc),
@@ -73,9 +84,9 @@
 				    concordanceText = concordanceElem.innerHTML.split(cutOut),
 				    sampleText = sampleElem.textContent;
 				return [
-					concordanceText[0],
+					this.decodeEntities(concordanceText[0]),
 					sampleText,
-					concordanceText[1],
+					this.decodeEntities(concordanceText[1]),
 				];
 			},
 			concordanceFromKWIC: function(cells, numColumns) {

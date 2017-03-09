@@ -40,6 +40,15 @@
 				))) {
 					progressSteps = Number(progress[2]);
 				} else progressSteps = 1;
+				// Detect what type of concordance display we are dealing with.
+				var labelKWIC = frames[2].document.querySelector('#label5'),
+				    labelBorder = labelKWIC.style.borderWidth;
+				console.log(labelKWIC, labelBorder);
+				if (labelBorder === '2px') {
+					this.scrapeConcordance = this.concordanceFromKWIC;
+				} else {
+					this.scrapeConcordance = this.concordanceFromList;
+				}
 			},
 			getNext: function(doc) {
 				var navtable = doc.querySelector('#resort td'),
@@ -53,6 +62,27 @@
 				}
 				// else return undefined
 			},
+			concordanceFromList: function(cells, numColumns) {
+				console.log('concordanceFromList');
+				var concordanceElem = cells[numColumns-1].querySelector('span'),
+				    sampleElem = concordanceElem.querySelector('span'),
+				    cutOut = sampleElem.outerHTML,
+				    concordanceText = concordanceElem.innerHTML.split(cutOut),
+				    sampleText = sampleElem.textContent;
+				return [
+					concordanceText[0],
+					sampleText,
+					concordanceText[1],
+				];
+			},
+			concordanceFromKWIC: function(cells, numColumns) {
+				console.log('concordanceFromKWIC');
+				return [
+					cells[numColumns - 3].textContent,
+					cells[numColumns - 2].textContent,
+					cells[numColumns - 1].textContent,
+				];
+			},
 			scrape1page: function(doc) {
 				var columns = doc.querySelectorAll('#t1 td').length,
 				    row, cells, i;
@@ -64,10 +94,9 @@
 						cells[0].textContent,
 						cells[1].textContent,
 						cells[2].textContent,
-						cells[columns - 3].textContent,
-						cells[columns - 2].textContent,
-						cells[columns - 1].textContent,
-					]);
+					].concat(
+						this.scrapeConcordance(cells, columns)
+					));
 				}
 			}
 		},

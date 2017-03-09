@@ -17,7 +17,7 @@ What’s included
 
 The bookmarklet is written for Chrome and appears to work in Safari and Firefox as well. Internet Explorer seems not to work for most corpora, but your mileage may vary (either way, you should have at least version 9 installed). 
 
-Currently, the script can scrape data from [all byu.edu corpora](http://corpus.byu.edu/) and from Real Academia Española ([CREA](http://corpus.rae.es/creanet.html)/[CORDE](http://corpus.rae.es/cordenet.html)). As of the upcoming version, corpora from the Fundación Rafael Lapesa are supported as well ([CORPES](http://web.frl.es/CORPES/view/inicioExterno.view), [CREA](http://web.frl.es/CREA/view/inicioExterno.view), [CNDHE](http://web.frl.es/CNDHE/view/inicioExterno.view)). It is written such that you can add your own implementations for other online concordance corpora.
+Currently, the script can scrape data from [all byu.edu corpora](http://corpus.byu.edu/) and from Real Academia Española ([CREA](http://corpus.rae.es/creanet.html)/[CORDE](http://corpus.rae.es/cordenet.html)). As of version 2.0, corpora from the Fundación Rafael Lapesa are supported as well ([CORPES](http://web.frl.es/CORPES/view/inicioExterno.view), [CREA](http://web.frl.es/CREA/view/inicioExterno.view), [CNDHE](http://web.frl.es/CNDHE/view/inicioExterno.view)). It is written such that you can add your own implementations for other online concordance corpora.
 
 
 How to complete the installer

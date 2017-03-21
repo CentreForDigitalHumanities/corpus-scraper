@@ -116,7 +116,7 @@
 		},
 		'corpus.rae.es': {
 			columns: [
-				'number', 'century', 'text',
+				'number', 'date', 'text',
 				'contextLeft', 'sample', 'contextRight',
 			],
 			init: function() {

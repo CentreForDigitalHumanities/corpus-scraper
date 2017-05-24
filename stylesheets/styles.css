@@ -45,7 +45,7 @@ a small {
   display:block;
 }
 
-#bookmarklet {
+.bookmarklet {
     display: inline-block;
     clear: both;
     margin: 1em 0;
@@ -57,7 +57,7 @@ a small {
     cursor: move;
 }
 
-#bookmarklet:active {
+.bookmarklet:active {
     cursor: grabbing;
 }
 

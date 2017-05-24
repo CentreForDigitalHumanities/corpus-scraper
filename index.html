@@ -14,7 +14,7 @@
     <!-- citation info -->
     <meta name="citation_title" content="CorpusScraper">
     <meta name="citation_author" content="Julian Gonggrijp">
-    <meta name="citation_publication_date" content="2014/11/06">
+    <meta name="citation_publication_date" content="2017/05/24">
     <meta name="dc.publisher" content="Digital Humanities Lab, Utrecht University">
   </head>
   <body>
@@ -33,12 +33,21 @@
         </ul>
       </header>
       <section>
-        <h1>
-<a id="corpusscraper-version-10" class="anchor" href="#corpusscraper-version-10" aria-hidden="true"><span class="octicon octicon-link"></span></a>CorpusScraper version 1.0</h1>
+        <h1><a id="corpusscraper" class="anchor" href="#corpusscraper" aria-hidden="true"><span class="octicon octicon-link"></span></a>CorpusScraper</h1>
 
 <p>Welcome. CorpusScraper is a small script that you can run from your bookmarks bar (a “bookmarklet”). It extracts data from an online text corpus and lets you save the data to a CSV file, in just a few clicks.</p>
 
-<p><em>Currently supported:</em></p>
+<p>In order to install, drag one of the boxes below to your bookmarks bar.</p>
+
+<ul>
+  <li>You need only one of the boxes, probably <a href="#version-latest">the topmost</a>.
+  <li>The bookmarklet requires JavaScript in order to work.
+  <li>Google Chrome is officially supported, but the bookmarklet should also work in Firefox and Safari.
+</ul>
+
+<p>CorpusScraper can easily be extended with other corpora. For copyright and citation information, see <a href="#copyright-and-citing">the bottom of this page</a>.</p>
+
+<p>Since version 1.0, the following corpora have been supported:</p>
 
 <ul>
 <li><a href="http://corpus.byu.edu/">All corpuses from corpus.byu.edu</a></li>
@@ -46,28 +55,50 @@
 <li><a href="http://corpus.rae.es/creanet.html">Real Academia Española – CREA</a></li>
 </ul>
 
+<p>The following corpora from the Fundación Rafael Lapesa were added in version 2.0:</p>
+
+<ul>
+  <li><a href="http://web.frl.es/CNDHE/">CNDHE</a>
+  <li><a href="http://web.frl.es/CORPES/">CORPES</a>
+  <li><a href="http://web.frl.es/CREA/">CREA</a>
+</ul>
+
+<p>In order to use CorpusScraper, enter a word-in-context query in your corpus of choice and load the first page of search results. When the page has completely loaded, click on the bookmarklet in your bookmarks bar. A progress bar is shown during extraction. After a while (about a second per page), the page turns white and a text box appears from which you can copy the CSV code (the text has already been selected for you). Paste the text into an empty plain text file (with e.g. Notepad, TextEdit or gedit) and save it with a .csv extension. Choose UTF-8 as the file encoding. The resulting file can be opened with Excel or SPSS. It uses semicolons to separate the values and double quotes to mark text values.</p>
+
+        <h2><a id="version-latest" class="anchor" href="#version-latest" aria-hidden="true"><span class="octicon octicon-link"></span></a>Latest version</h2>
+
+<p>If you install the bookmarklet through the box below, clicking on the bookmarklet will always give you the latest version of CorpusScraper, fully automagically. In other words, you never need to update your bookmarklet manually.</p>
+
+<a class="bookmarklet" title="Drag me" href="javascript:(function(){var scriptnode = document.createElement('script');scriptnode.setAttribute('src', '//corpusscraper.hum.uu.nl/corpusScraper-latest.min.js');document.head.appendChild(scriptnode);}())">ScrapeCorpus</a>
+
+        <h2><a id="version-20" class="anchor" href="#version-20" aria-hidden="true"><span class="octicon octicon-link"></span></a>Version 2.0</h2>
+
+<p>If you wish to stick with version 2.0 and not receive automatic updates, install the box below instead.</p>
+
+<a class="bookmarklet" title="Drag me" href="javascript:(function(){var scriptnode = document.createElement('script');scriptnode.setAttribute('src', '//corpusscraper.hum.uu.nl/corpusScraper-2.0.min.js');document.head.appendChild(scriptnode);}())">ScrapeCorpus 2.0</a>
+
+        <h2><a id="version-10" class="anchor" href="#version-10" aria-hidden="true"><span class="octicon octicon-link"></span></a>Version 1.0</h2>
+
+<p>This was the first public version of CorpusScraper. If you find that version 2.0 breaks your corpus, you can try whether this version works for you.</p>
+
+<a class="bookmarklet" title="Drag me" href="javascript:(function(){'use strict';var e,parser=new DOMParser(),data=[],progressSteps,progress=0;var f={'corpus.byu.edu':{init:function(){e=frames[6];this.rowsPerPage=frames[2].document.querySelector('#kh').value;var a=e.document.querySelectorAll('#zabba table')[1];if(a){var b=a.querySelectorAll('td')[2];progressSteps=Number(b.childNodes[4].nodeValue.split('/')[1])}else progressSteps=1},getNextURL:function(a){var b=a.querySelectorAll('#zabba table')[1];if(!b)return;var c=b.querySelectorAll('td')[2],anchor=c.querySelectorAll('a')[2],currentState=c.childNodes[4].nodeValue.split('/');if(anchor&&Number(currentState[0])<Number(currentState[1])){return anchor.getAttribute('href')}},scrape1page:function(a){var b,anchors,field,fieldparts,fieldmiddle,rowdata;for(var i=1;i<=this.rowsPerPage;++i){b=a.querySelector('#t'+i);if(!b)continue;anchors=b.querySelectorAll('a');field=b.querySelector('#texto_'+i);rowdata=[];if(!anchors||!field||!field.value)continue;for(var j=0;j<3;++j){rowdata.push(anchors[j].childNodes[0].nodeValue)}fieldparts=field.value.split(/<b><u>|<\/u><\/b>/);fieldmiddle=[];for(var l=fieldparts.length,j=1;j<l-1;++j){fieldmiddle.push(fieldparts[j])}rowdata.push(fieldparts[0],fieldmiddle.join(''),fieldparts[j]);data.push(rowdata)}}},'corpus.rae.es':{init:function(){e=window;var a=document.querySelector('td.texto[align=%22center%22]');progressSteps=Number(a.textContent.split(/[^0,1-9]+/)[2])},getNextURL:function(a){var b=a.querySelector('td > a');if(!b||b.textContent!=='Siguiente')return;return b.getAttribute('href')},scrape1page:function(a){var b=a.querySelector('tt');if(!b){console.log('Error: page',progress,'does not contain data in the expected format.');return}var c=b.innerHTML.split('\n'),pieces,century,rowdata;for(var l=c.length,i=1;i<l;++i){pieces=c[i].split(/<a.+?%22>|<\/a>/);if(pieces.length<3)continue;century=Number(pieces[2].substr(52,15).match(/\d\d/));rowdata=[pieces[0].substr(0,5),century+1,pieces[2].substr(109,61),pieces[0].substr(5),pieces[1],pieces[2].substr(0,48)];data.push(rowdata)}}}};f['www.corpusdelespanol.org']=f['corpus.byu.edu'];f['www.corpusdoportugues.org']=f['corpus.byu.edu'];f['googlebooks.byu.edu']=f['corpus.byu.edu'];var g=f[window.location.hostname];if(!g)return;function insertJQueryThen(a){var b=document.createElement('script');b.setAttribute('src','//code.jquery.com/jquery-2.1.1.min.js');document.head.appendChild(b);b.addEventListener('load',a)}function createStatusbar(){var a=document.createElement('div');a.setAttribute('style','background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');a.innerHTML=('<div style=%22width: 100px; height: 10px; border: 2px solid black;%22>'+'<div id=%22progress-fill%22 style=%22width: 0%; height: 100%; background: #d10%22 />'+'</div>');e.document.body.appendChild(a)}function updateStatusbar(){var a=++progress/progressSteps*100;e.document.querySelector('#progress-fill').style.width=a+'%'}function retrieveAndProceed(c,d){window.jQuery.get(c,function(a){var b=parser.parseFromString(a,'text/html');d(b)})}function sanitize(a){if(typeof a!=='string')return a;return a.trim().split('%22').join('%22%22')}function exportCSV(){console.log(data);data=data.filter(function(a){return a});var b='',aLength;for(var l=data.length,i=0;i<l;++i){var a=data[i];aLength=a.length;if(aLength!==6){console.log('Error: subarray of incorrect length.\n',a);continue}b+=sanitize(a[0])+';'+sanitize(a[1]);for(var j=2;j<aLength;++j){b+=';%22'+sanitize(a[j])+'%22'}b+='\n'}document.write('Scraping complete. Please copy the contents below '+'into a plaintext document and give it a .csv extension.<br>'+'<textarea id=%22output%22 style=%22width: 50ex; height: 10em;%22>'+'number;century;text;contextLeft;sample;contextRight\n'+b+'</textarea>');window.jQuery('#output').focus().select()}function scrape(a){console.log(a);var b=new Date(),nextURL=g.getNextURL(a);g.scrape1page(a);updateStatusbar();if(nextURL){var c=Math.max(0,500-(new Date()-b));window.setTimeout(retrieveAndProceed,c,nextURL,scrape)}else{exportCSV()}}g.init();createStatusbar();insertJQueryThen(function(){scrape(e.document)})}());">ScrapeCorpus 1.0</a>
+
 <h2>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+<a id="copyright-and-citing" class="anchor" href="#copyright-and-citing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright and citing</h2>
 
-<p>Drag the box below to your bookmarks bar.<br>
-<a id="bookmarklet" title="Drag me" href="javascript:(function(){'use strict';var e,parser=new DOMParser(),data=[],progressSteps,progress=0;var f={'corpus.byu.edu':{init:function(){e=frames[6];this.rowsPerPage=frames[2].document.querySelector('#kh').value;var a=e.document.querySelectorAll('#zabba table')[1];if(a){var b=a.querySelectorAll('td')[2];progressSteps=Number(b.childNodes[4].nodeValue.split('/')[1])}else progressSteps=1},getNextURL:function(a){var b=a.querySelectorAll('#zabba table')[1];if(!b)return;var c=b.querySelectorAll('td')[2],anchor=c.querySelectorAll('a')[2],currentState=c.childNodes[4].nodeValue.split('/');if(anchor&&Number(currentState[0])<Number(currentState[1])){return anchor.getAttribute('href')}},scrape1page:function(a){var b,anchors,field,fieldparts,fieldmiddle,rowdata;for(var i=1;i<=this.rowsPerPage;++i){b=a.querySelector('#t'+i);if(!b)continue;anchors=b.querySelectorAll('a');field=b.querySelector('#texto_'+i);rowdata=[];if(!anchors||!field||!field.value)continue;for(var j=0;j<3;++j){rowdata.push(anchors[j].childNodes[0].nodeValue)}fieldparts=field.value.split(/<b><u>|<\/u><\/b>/);fieldmiddle=[];for(var l=fieldparts.length,j=1;j<l-1;++j){fieldmiddle.push(fieldparts[j])}rowdata.push(fieldparts[0],fieldmiddle.join(''),fieldparts[j]);data.push(rowdata)}}},'corpus.rae.es':{init:function(){e=window;var a=document.querySelector('td.texto[align=%22center%22]');progressSteps=Number(a.textContent.split(/[^0,1-9]+/)[2])},getNextURL:function(a){var b=a.querySelector('td > a');if(!b||b.textContent!=='Siguiente')return;return b.getAttribute('href')},scrape1page:function(a){var b=a.querySelector('tt');if(!b){console.log('Error: page',progress,'does not contain data in the expected format.');return}var c=b.innerHTML.split('\n'),pieces,century,rowdata;for(var l=c.length,i=1;i<l;++i){pieces=c[i].split(/<a.+?%22>|<\/a>/);if(pieces.length<3)continue;century=Number(pieces[2].substr(52,15).match(/\d\d/));rowdata=[pieces[0].substr(0,5),century+1,pieces[2].substr(109,61),pieces[0].substr(5),pieces[1],pieces[2].substr(0,48)];data.push(rowdata)}}}};f['www.corpusdelespanol.org']=f['corpus.byu.edu'];f['www.corpusdoportugues.org']=f['corpus.byu.edu'];f['googlebooks.byu.edu']=f['corpus.byu.edu'];var g=f[window.location.hostname];if(!g)return;function insertJQueryThen(a){var b=document.createElement('script');b.setAttribute('src','//code.jquery.com/jquery-2.1.1.min.js');document.head.appendChild(b);b.addEventListener('load',a)}function createStatusbar(){var a=document.createElement('div');a.setAttribute('style','background: #fff; padding: 20px; border-radius: 10px; z-index: 10; position: fixed; top: 50px; right: 50px;');a.innerHTML=('<div style=%22width: 100px; height: 10px; border: 2px solid black;%22>'+'<div id=%22progress-fill%22 style=%22width: 0%; height: 100%; background: #d10%22 />'+'</div>');e.document.body.appendChild(a)}function updateStatusbar(){var a=++progress/progressSteps*100;e.document.querySelector('#progress-fill').style.width=a+'%'}function retrieveAndProceed(c,d){window.jQuery.get(c,function(a){var b=parser.parseFromString(a,'text/html');d(b)})}function sanitize(a){if(typeof a!=='string')return a;return a.trim().split('%22').join('%22%22')}function exportCSV(){console.log(data);data=data.filter(function(a){return a});var b='',aLength;for(var l=data.length,i=0;i<l;++i){var a=data[i];aLength=a.length;if(aLength!==6){console.log('Error: subarray of incorrect length.\n',a);continue}b+=sanitize(a[0])+';'+sanitize(a[1]);for(var j=2;j<aLength;++j){b+=';%22'+sanitize(a[j])+'%22'}b+='\n'}document.write('Scraping complete. Please copy the contents below '+'into a plaintext document and give it a .csv extension.<br>'+'<textarea id=%22output%22 style=%22width: 50ex; height: 10em;%22>'+'number;century;text;contextLeft;sample;contextRight\n'+b+'</textarea>');window.jQuery('#output').focus().select()}function scrape(a){console.log(a);var b=new Date(),nextURL=g.getNextURL(a);g.scrape1page(a);updateStatusbar();if(nextURL){var c=Math.max(0,500-(new Date()-b));window.setTimeout(retrieveAndProceed,c,nextURL,scrape)}else{exportCSV()}}g.init();createStatusbar();insertJQueryThen(function(){scrape(e.document)})}());">ScrapeCorpus</a><br>
-Google Chrome is officially supported, but the bookmarklet should also work in Firefox and Safari.<br>
-<em>Note</em> The bookmarklet requires JavaScript in order to work.</p>
-
-<h2>
-<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
-
-<p>Enter a word-in-context query and load the first page of search results. When the page has completely loaded, click on the bookmarklet in your bookmarks bar. A progress bar is shown during extraction. After a while (about a second per page), the page turns white and a text box appears from which you can copy the CSV code (the text has already been selected for you). Paste the text into an empty plain text file (with e.g. Notepad, TextEdit or gedit) and save it with a .csv extension. Choose UTF-8 as the file encoding. The resulting file can be opened with Excel or SPSS. It uses semicolons to separate the values and double quotes to mark text values.</p>
-
-<p>© 2014 <a href="http://digitalhumanities.wp.hum.uu.nl">Digital Humanities Lab</a>, Faculty of Humanities, Utrecht University<br>
+<p>© 2014, 2016, 2017 <a href="http://digitalhumanities.wp.hum.uu.nl">Digital Humanities Lab</a>, Faculty of Humanities, Utrecht University<br>
 Author: Julian Gonggrijp</p>
 
-<h2>
-<a id="citing" class="anchor" href="#citing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Citing</h2>
-
-<p>In (academic) papers, you can credit CorpusScraper using the following BibTeX entry.</p>
+<p>In (academic) papers, you can credit CorpusScraper using one of the following BibTeX entries. The first is for version 2.0, the second is for version 1.0.</p>
 <pre>@misc{corpusscraper,
-    title        = {{CorpusScraper}},
+    title        = {{CorpusScraper 2.0}},
+    author       = {Gonggrijp, Julian},
+    month        = {may},
+    year         = {2017},
+    note         = {Computer program by the Digital Humanities Lab, Utrecht University. \url{http://uudigitalhumanitieslab.github.io/corpus-scraper/}}
+}</pre>
+<pre>@misc{corpusscraper,
+    title        = {{CorpusScraper 1.0}},
     author       = {Gonggrijp, Julian},
     month        = {nov},
     year         = {2014},

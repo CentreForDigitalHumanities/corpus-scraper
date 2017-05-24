@@ -9,7 +9,7 @@ Motivation
 
 Some online text concordance corpora, such as Corpus del Español, do not offer a button to download your search results in a practical format, effectively expecting you to copy, paste and edit the data manually page by page. CorpusScraper is a bookmarklet that automates that work for you, so saving your search results becomes nearly as easy as if there would be such a button.
 
-See `CorpusScraper.html` for a full explanation of the usage.
+See https://uudigitalhumanitieslab.github.io/corpus-scraper/ for a full explanation of the usage.
 
 
 What’s included

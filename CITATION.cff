@@ -12,6 +12,10 @@ authors:
     family-names: Gonggrijp
     affiliation: Utrecht University
     orcid: 'https://orcid.org/0000-0002-2744-5160'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.10931436
+    description: The concept DOI of the repository
 repository-code: 'https://github.com/CentreForDigitalHumanities/corpus-scraper'
 url: 'https://centrefordigitalhumanities.github.io/corpus-scraper/'
 abstract: >-

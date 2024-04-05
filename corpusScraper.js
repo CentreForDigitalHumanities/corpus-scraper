@@ -137,6 +137,7 @@
 					return 'number';
 				case 'A\xD1O':
 					return 'date';
+				case 'TÍTULO':
 				case 'T\xCDTULO':
 					return 'text';
 				case 'CONCORDANCIA':
